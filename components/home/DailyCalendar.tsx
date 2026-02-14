@@ -208,8 +208,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
 /* ===============================
    日別セクション
 ================================ */
-function DaySection({ date }: { date: string }) {
-  const { expenses } = useExpenseStore();
+function DaySection({ date, expenses }: { date: string, expenses: Expense[] }) {
   return (
     <div>
       {/* 日付ラベル（アクセント金） */}
