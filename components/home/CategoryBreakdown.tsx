@@ -1,8 +1,5 @@
 type Item = { category: string; total: number };
-
-type Props = {
-  expenses: Expense[];
-};
+import type { Expense } from "@/lib/store/expenseStore";
 
 const theme = {
   primary: "#1D4E89",
@@ -15,7 +12,7 @@ const theme = {
   border: "rgba(15,23,42,0.10)",
 };
 
-export default function CategoryBreakdown({ expenses }: Props) {
+export default function CategoryBreakdown({ expenses }: { expenses: Expense[] }) {
   // 集計（カテゴリ→合計）
   const map: Record<string, number> = {};
   for (const e of expenses) {

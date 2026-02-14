@@ -2,7 +2,7 @@
 
 import { useMemo, useState, useRef } from "react";
 import { CategoryIcon } from "./CategoryIcon";
-import { useExpenseStore } from "@/lib/store/expenseStore";
+import type { Expense } from "@/lib/store/expenseStore";
 
 /* ===============================
    型
@@ -21,8 +21,7 @@ const theme = {
 /* ===============================
    Component
 ================================ */
-export default function DailyCalendar() {
-  const { expenses } = useExpenseStore();
+export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
   const [monthOffset, setMonthOffset] = useState(0);
   const touchStartX = useRef<number | null>(null);
 

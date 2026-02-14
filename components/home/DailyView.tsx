@@ -3,7 +3,7 @@
 import { useState } from "react";
 import DailyList from "./DailyList";
 import DailyCalendar from "./DailyCalendar";
-import { useExpenseStore } from "@/lib/store/expenseStore";
+import type { Expense } from "@/lib/store/expenseStore";
 
 const theme = {
   primary: "#1D4E89", // Blue
@@ -15,8 +15,7 @@ const theme = {
   subtext: "#64748B",
 };
 
-export default function DailyView() {
-  const { expenses } = useExpenseStore();
+export default function DailyView({ expenses }: { expenses: Expense[] }) {
   const [tab, setTab] = useState<"list" | "calendar">("list");
   const idx = tab === "list" ? 0 : 1;
 
