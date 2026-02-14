@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { theme } from "@/lib/theme";
 import {
     Home,
     List,
@@ -297,18 +298,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 /* ===============================
    styles
 ================================ */
-
-const theme = {
-    primary: "#1D4E89",
-    accent: "#D6B58A",
-
-    bg: "#F7F9FC",
-    surface: "#FFFFFF",
-    text: "#0F172A",
-    subtext: "#64748B",
-    border: "#E2E8F0",
-};
-
 const fabStyle: React.CSSProperties = {
     position: "fixed",
     bottom: "calc(var(--tabbar-h) - 50px + env(safe-area-inset-bottom))",

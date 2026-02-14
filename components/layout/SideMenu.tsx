@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import type { LucideIcon } from "lucide-react";
+import { theme } from "@/lib/theme";
 import {
   Home,
   List,
@@ -18,18 +19,6 @@ import {
 type Props = {
   open: boolean;
   onClose: () => void;
-};
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.88)",
-  surfaceSolid: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-  blueBorder: "rgba(29,78,137,0.12)",
 };
 
 export default function SideMenu({ open, onClose }: Props) {
@@ -324,7 +313,7 @@ const drawer: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
 
-  borderRight: `1px solid ${theme.blueBorder}`,
+  borderRight: `1px solid ${theme.border}`,
   boxShadow: "20px 0 60px rgba(2,6,23,0.22)",
 };
 
@@ -341,7 +330,7 @@ const goldLine: React.CSSProperties = {
 
 const drawerHeader: React.CSSProperties = {
   padding: "18px 16px 12px",
-  borderBottom: `1px solid ${theme.blueBorder}`,
+  borderBottom: `1px solid ${theme.border}`,
 };
 
 const logoWrap: React.CSSProperties = {
@@ -435,7 +424,7 @@ const sectionTitle: React.CSSProperties = {
 };
 
 const sectionCard: React.CSSProperties = {
-  background: theme.surfaceSolid,
+  background: theme.surface,
   borderRadius: 16,
   overflow: "hidden",
   border: `1px solid rgba(29,78,137,0.12)`,
@@ -449,7 +438,7 @@ const itemRow: React.CSSProperties = {
   alignItems: "center",
   padding: "13px 14px",
   transition: "background .15s ease, transform .12s ease, opacity .12s ease",
-  background: theme.surfaceSolid,
+  background: theme.surface,
 };
 
 const itemActive: React.CSSProperties = {

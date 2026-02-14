@@ -4,21 +4,11 @@ import { useMemo, useState } from "react";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
+import { theme } from "@/lib/theme";
 
 type Category = {
   id: string;
   name: string;
-  // 後で「カテゴリ色」を本実装するならここに追加（今は使わない）
-  // color?: string;
-};
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-  surface: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  blueBorder: "rgba(29,78,137,0.12)",
 };
 
 export default function CategoryPage() {
@@ -117,7 +107,7 @@ const infoCard: React.CSSProperties = {
   overflow: "hidden",
   borderRadius: 18,
   background: theme.surface,
-  border: `1px solid ${theme.blueBorder}`,
+  border: `1px solid ${theme.border}`,
   boxShadow: "0 14px 26px rgba(2,6,23,0.06)",
   padding: 16,
 };
@@ -170,7 +160,7 @@ const rowCard: React.CSSProperties = {
   justifyContent: "space-between",
   alignItems: "center",
   gap: 14,
-  border: `1px solid ${theme.blueBorder}`,
+  border: `1px solid ${theme.border}`,
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
 };
 

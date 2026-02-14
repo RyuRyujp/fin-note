@@ -2,18 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useExpenseStore, Expense } from "@/lib/store/expenseStore";
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.92)",
-  surfaceSolid: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-  blueBorder: "rgba(29,78,137,0.14)",
-};
+import { theme } from "@/lib/theme";
 
 type InputChange = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
 
@@ -147,11 +136,11 @@ const modal: React.CSSProperties = {
   width: "100%",
   maxWidth: 390,
 
-  background: theme.surfaceSolid,
+  background: theme.surface,
   borderRadius: 22,
   padding: 18,
 
-  border: `1px solid ${theme.blueBorder}`,
+  border: `1px solid ${theme.border}`,
   boxShadow: "0 22px 60px rgba(2,6,23,0.32)",
 };
 

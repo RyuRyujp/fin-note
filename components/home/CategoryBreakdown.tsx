@@ -1,16 +1,6 @@
 type Item = { category: string; total: number };
 import type { Expense } from "@/lib/store/expenseStore";
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.86)",
-  surfaceSolid: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-};
+import { theme } from "@/lib/theme";
 
 export default function CategoryBreakdown({ expenses }: { expenses: Expense[] }) {
   // 集計（カテゴリ→合計）
@@ -100,7 +90,7 @@ const card: React.CSSProperties = {
   overflow: "hidden",
   borderRadius: 16,
   padding: "14px 14px",
-  background: theme.surfaceSolid,
+  background: theme.surface,
   border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
 };

@@ -3,20 +3,7 @@
 import { useMemo, useState, useRef } from "react";
 import { CategoryIcon } from "./CategoryIcon";
 import type { Expense } from "@/lib/store/expenseStore";
-
-/* ===============================
-   型
-================================ */
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.86)",
-  surfaceSolid: "#FFFFFF",
-  border: "rgba(15,23,42,0.10)",
-  text: "#0F172A",
-  subtext: "#64748B",
-};
+import { theme } from "@/lib/theme";
 
 /* ===============================
    Component
@@ -332,7 +319,7 @@ const grid: React.CSSProperties = {
 const dayBtn: React.CSSProperties = {
   position: "relative",
   border: `1px solid rgba(15,23,42,0.08)`,
-  background: theme.surfaceSolid,
+  background: theme.surface,
   borderRadius: 14,
   padding: "8px 6px",
   minHeight: 58,

@@ -3,17 +3,7 @@
 import { useState } from "react";
 import { CategoryIcon } from "@/components/home/CategoryIcon";
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  borderBlue: "rgba(29,78,137,0.12)",
-  border: "rgba(15,23,42,0.08)",
-};
+import { theme } from "@/lib/theme";
 
 export default function TransactionRow({ expense }: { expense: Expense }) {
   const { selectExpense } = useExpenseStore();
@@ -55,7 +45,7 @@ export default function TransactionRow({ expense }: { expense: Expense }) {
         <div
           style={{
             ...amount,
-            color: minus ? "#16a34a" : theme.primary, // ✅ 基本は青（支出/収入は好みで変更OK）
+            color: minus ? "#16a34a" : theme.primary, 
           }}
         >
           ¥{Math.abs(expense.amount).toLocaleString()}
@@ -87,7 +77,7 @@ const card: React.CSSProperties = {
   alignItems: "center",
   gap: 14,
 
-  border: `1px solid ${theme.borderBlue}`, // ✅ 青の薄枠
+  border: `1px solid ${theme.border}`, 
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
 
   cursor: "pointer",
@@ -163,7 +153,7 @@ const chevronDot: React.CSSProperties = {
   width: 6,
   height: 6,
   borderRadius: 999,
-  background: theme.accent, // ✅ 金
+  background: theme.accent, 
   boxShadow: "0 0 0 4px rgba(214,181,138,0.16)",
 };
 

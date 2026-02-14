@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import type { Expense } from "@/lib/store/expenseStore";
+import { theme } from "@/lib/theme";
 import {
   ResponsiveContainer,
   BarChart,
@@ -10,20 +11,6 @@ import {
   Tooltip,
   CartesianGrid,
 } from "recharts";
-
-/* ===============================
-   型
-================================ */
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.86)",
-  surfaceSolid: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-};
 
 /* ===============================
    MonthlyView
@@ -133,7 +120,7 @@ function MonthlyChart({
           <Tooltip
             cursor={{ fill: "rgba(15,23,42,0.04)" }}
             contentStyle={{
-              background: theme.surfaceSolid,
+              background: theme.surface,
               border: `1px solid ${theme.border}`,
               borderRadius: 12,
               boxShadow: "0 14px 30px rgba(2,6,23,0.10)",
@@ -268,7 +255,7 @@ const goldPin: React.CSSProperties = {
 const monthCard: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  background: theme.surfaceSolid,
+  background: theme.surface,
   borderRadius: 18,
   padding: "14px 16px",
   border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
@@ -321,7 +308,7 @@ const monthTotal: React.CSSProperties = {
 const chartCard: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
-  background: theme.surfaceSolid,
+  background: theme.surface,
   borderRadius: 20,
   padding: 16,
   border: `1px solid rgba(29,78,137,0.12)`,

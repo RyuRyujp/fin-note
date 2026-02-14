@@ -6,6 +6,7 @@ import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
 import { CategoryIcon } from "@/components/home/CategoryIcon";
+import { theme } from "@/lib/theme";
 
 /* ===============================
    型
@@ -16,17 +17,6 @@ type FixedExpense = {
   amount: number;
   day: number; // 支払日
   category: string;
-};
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-  blueBorder: "rgba(29,78,137,0.12)",
 };
 
 /* ===============================
@@ -223,7 +213,7 @@ const card: React.CSSProperties = {
   justifyContent: "space-between",
   alignItems: "center",
   gap: 14,
-  border: `1px solid ${theme.blueBorder}`, // ✅ 青薄枠
+  border: `1px solid ${theme.border}`,
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
 };
 

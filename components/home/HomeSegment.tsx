@@ -1,18 +1,10 @@
+import { theme } from "@/lib/theme";
+
 type Mode = "category" | "daily" | "pie" | "monthly";
 
 type Props = {
   value: Mode;
   onChange: (v: Mode) => void;
-};
-
-const theme = {
-  primary: "#1D4E89", // Blue
-  accent: "#D6B58A",  // Gold
-
-  surface: "rgba(255,255,255,0.78)",
-  border: "rgba(15,23,42,0.10)",
-  text: "#0F172A",
-  subtext: "#475569",
 };
 
 const items: { key: Mode; label: string }[] = [

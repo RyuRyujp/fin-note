@@ -1,3 +1,5 @@
+import { theme } from "@/lib/theme";
+
 type Props = {
   year: string;
   month: string;
@@ -5,17 +7,6 @@ type Props = {
   setYear: (v: string) => void;
   setMonth: (v: string) => void;
   setCategory: (v: string) => void;
-};
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.86)",
-  surfaceSolid: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
 };
 
 export default function FilterBar({
@@ -136,7 +127,7 @@ const selectShell: React.CSSProperties = {
   position: "relative",
   borderRadius: 14,
   border: `1px solid ${theme.border}`,
-  background: theme.surfaceSolid,
+  background: theme.surface,
   boxShadow: "0 10px 18px rgba(2,6,23,0.05)",
   overflow: "hidden",
 };

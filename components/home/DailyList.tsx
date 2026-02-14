@@ -1,15 +1,6 @@
 import { CategoryIcon } from "./CategoryIcon";
 import type { Expense } from "@/lib/store/expenseStore";
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "#FFFFFF",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.08)",
-};
+import { theme } from "@/lib/theme";
 
 export default function DailyList({ expenses }: { expenses: Expense[] }) {
   const groups: Record<string, Expense[]> = {};

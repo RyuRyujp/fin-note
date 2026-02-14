@@ -1,23 +1,13 @@
 "use client";
 
 import { useState } from "react";
+import { theme } from "@/lib/theme";
 
 type Props = {
   title: string;
   subtitle?: string;
   onMenu?: () => void;
   right?: React.ReactNode;
-};
-
-const theme = {
-  primary: "#1D4E89",
-  accent: "#D6B58A",
-
-  surface: "rgba(255,255,255,0.82)",
-  text: "#0F172A",
-  subtext: "#64748B",
-  border: "rgba(15,23,42,0.10)",
-  blueBorder: "rgba(29,78,137,0.12)",
 };
 
 export default function AppHeader({ title, subtitle, onMenu, right }: Props) {
@@ -86,7 +76,7 @@ const header: React.CSSProperties = {
   background: theme.surface,
   backdropFilter: "blur(16px)",
 
-  borderBottom: `1px solid ${theme.blueBorder}`, // ✅ 青の薄枠
+  borderBottom: `1px solid ${theme.border}`, 
   boxShadow: "0 10px 22px rgba(2,6,23,0.06)",
 
   // iPhone safe area
