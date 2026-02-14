@@ -32,7 +32,7 @@ type Expense = {
    Dashboard
 ================================ */
 export default function DashboardPage() {
-    const { expenses } = useExpenseStore();
+    const { expenses, loadExpenses } = useExpenseStore();
 
     const [mode, setMode] = useState<Mode>("daily");
     const [openAdd, setOpenAdd] = useState(false);

@@ -45,6 +45,7 @@ type State = {
     livingExpenses: LivingExpense[];
 
     loading: boolean;
+    loadExpenses: () => Promise<void>;
 }
 
 export const useExpenseStore = create<State>((set) => ({
