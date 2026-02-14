@@ -12,21 +12,11 @@ import MonthlyView from "@/components/home/MonthlyView";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
-import Fab from "@/components/ui/Fab";
-import BottomSheet from "@/components/ui/BottomSheet";
 
 /* ===============================
    型定義
 ================================ */
 type Mode = "category" | "daily" | "pie" | "monthly";
-
-type Expense = {
-    id: string;
-    date: string; // "YYYY/MM/DD"
-    detail: string;
-    amount: number;
-    category: string;
-};
 
 /* ===============================
    Dashboard

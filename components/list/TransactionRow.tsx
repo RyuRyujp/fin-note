@@ -2,16 +2,7 @@
 
 import { useState } from "react";
 import { CategoryIcon } from "@/components/home/CategoryIcon";
-import { useExpenseStore } from "@/lib/store/expenseStore";
-
-type Expense = {
-  id: string;
-  detail: string;
-  amount: number;
-  date: string;
-  category: string;
-  payment: string;
-};
+import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 
 const theme = {
   primary: "#1D4E89",

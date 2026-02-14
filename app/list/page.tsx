@@ -9,13 +9,6 @@ import TransactionRow from "@/components/list/TransactionRow";
 import ExpenseDetailModal from "@/components/layout/ExpenseDetailModal";
 import TabBar from "@/components/nav/TabBar";
 
-type Expense = {
-    id: string;
-    date: string; // "YYYY/MM/DD"
-    detail: string;
-    amount: number;
-    category: string;
-};
 
 export default function ListPage() {
     const { expenses, loadExpenses } = useExpenseStore() as {

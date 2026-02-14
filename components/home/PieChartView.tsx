@@ -1,15 +1,7 @@
 "use client";
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-
-type Expense = {
-  category: string;
-  amount: number;
-};
-
-type Props = {
-  expenses: Expense[];
-};
+import { useExpenseStore } from "@/lib/store/expenseStore";
 
 const theme = {
   primary: "#1D4E89",
@@ -34,7 +26,8 @@ const BLUE_STEPS = [
   "#1A466F",
 ];
 
-export default function PieChartView({ expenses }: Props) {
+export default function PieChartView() {
+  const { expenses } = useExpenseStore();
   const map: Record<string, number> = {};
 
   expenses.forEach((e) => {

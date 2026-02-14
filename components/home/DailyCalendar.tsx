@@ -2,18 +2,11 @@
 
 import { useMemo, useState, useRef } from "react";
 import { CategoryIcon } from "./CategoryIcon";
+import { useExpenseStore } from "@/lib/store/expenseStore";
 
 /* ===============================
    型
 ================================ */
-type Expense = {
-  id: string;
-  date: string; // YYYY/MM/DD
-  amount: number;
-  detail?: string;
-  category?: string;
-};
-
 const theme = {
   primary: "#1D4E89",
   accent: "#D6B58A",
@@ -28,7 +21,8 @@ const theme = {
 /* ===============================
    Component
 ================================ */
-export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
+export default function DailyCalendar() {
+  const { expenses } = useExpenseStore();
   const [monthOffset, setMonthOffset] = useState(0);
   const touchStartX = useRef<number | null>(null);
 
@@ -215,7 +209,8 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
 /* ===============================
    日別セクション
 ================================ */
-function DaySection({ date, expenses }: { date: string; expenses: Expense[] }) {
+function DaySection({ date }: { date: string }) {
+  const { expenses } = useExpenseStore();
   return (
     <div>
       {/* 日付ラベル（アクセント金） */}

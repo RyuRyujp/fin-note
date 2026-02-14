@@ -1,13 +1,3 @@
-type Expense = {
-  id: string;
-  date: string;
-  detail: string;
-  amount: number;
-  category: string;
-  memo: string;
-  payment: string;
-};
-
 type Item = { category: string; total: number };
 
 type Props = {
