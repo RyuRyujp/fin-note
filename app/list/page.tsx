@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useExpenseStore } from "@/lib/store/expenseStore";
+import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import FilterBar from "@/components/list/FilterBar";
