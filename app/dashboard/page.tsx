@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
-import { useExpenseStore } from "@/lib/store/expenseStore";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
+
 import MonthlyTotalCard from "@/components/home/MonthlyTotalCard";
 import HomeSegment from "@/components/home/HomeSegment";
 import CategoryBreakdown from "@/components/home/CategoryBreakdown";
@@ -19,173 +20,171 @@ import TabBar from "@/components/nav/TabBar";
 type Mode = "category" | "daily" | "pie" | "monthly";
 
 /* ===============================
+   Utils
+================================ */
+// "yyyy/MM/dd" や "yyyy-MM-dd" を安全に Date にする（new Date("yyyy/MM/dd") は環境で壊れることがある）
+function parseJPDate(dateStr: string): Date | null {
+  const parts = dateStr.split(/[\/\-]/).map((v) => Number(v));
+  if (parts.length < 3) return null;
+
+  const [y, m, d] = parts;
+  if (!y || !m || !d) return null;
+
+  const dt = new Date(y, m - 1, d);
+  if (Number.isNaN(dt.getTime())) return null;
+
+  return dt;
+}
+
+/* ===============================
    Dashboard
 ================================ */
 export default function DashboardPage() {
-    const { expenses, loadExpenses } = useExpenseStore();
+  const { expenses, loadExpenses, loading } = useExpenseStore();
 
-    const [mode, setMode] = useState<Mode>("daily");
-    const [openAdd, setOpenAdd] = useState(false);
-    const [menuOpen, setMenuOpen] = useState(false);
+  const [mode, setMode] = useState<Mode>("daily");
+  const [menuOpen, setMenuOpen] = useState(false);
 
-    const [detail, setDetail] = useState("");
-    const [amount, setAmount] = useState("");
-    const [category, setCategory] = useState("食費");
-    const [loading, setLoading] = useState(false);
+  const didInitRef = useRef(false);
 
-    async function handleRefresh() {
-        setLoading(true);
-        await loadExpenses();
-        setLoading(false);
-    }
+  /* ===== 初回ロード（マウント時に1回） ===== */
+  useEffect(() => {
+    if (didInitRef.current) return;
+    didInitRef.current = true;
 
-    /* ===== 初回ロード ===== */
-    useEffect(() => {
-        const init = async () => {
-            if (expenses.length === 0) {
-                setLoading(true);
-                await loadExpenses();
-                setLoading(false);
-            }
-        };
-        init();
-    }, [expenses.length, loadExpenses]);
+    loadExpenses();
+  }, [loadExpenses]);
 
+  async function handleRefresh() {
+    await loadExpenses();
+  }
 
-    /* ===== 今月判定 ===== */
-    const now = new Date();
-    const y = now.getFullYear();
-    const m = now.getMonth(); // 0-based
+  /* ===== 今月判定 ===== */
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth(); // 0-based
 
-    /* ===== 今月データ ===== */
-    const monthlyExpenses = useMemo<Expense[]>(() => {
-        return expenses.filter((e) => {
-            if (!e.date) return false;
-            const d = new Date(e.date);
-            return d.getFullYear() === y && d.getMonth() === m;
-        });
-    }, [expenses, y, m]);
+  const dateLabel = `今日：${now.toLocaleDateString("ja-JP")}`;
+  const monthLabel = `${y}年${m + 1}月`;
 
-    /* ===== 今月合計 ===== */
-    const expenseTotal = useMemo<number>(() => {
-        return monthlyExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
-    }, [monthlyExpenses]);
+  /* ===== 今月データ ===== */
+  const monthlyExpenses = useMemo((): Expense[] => {
+    return expenses.filter((e) => {
+      if (!e.date) return false;
 
-    /* ===== 追加処理 ===== */
-    const submitAdd = async () => {
-        if (!detail || !amount) return;
+      const d = parseJPDate(e.date);
+      if (!d) return false;
 
-        await fetch("/api/add-expense", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                detail,
-                amount: Number(amount),
-                category,
-            }),
-        });
+      return d.getFullYear() === y && d.getMonth() === m;
+    });
+  }, [expenses, y, m]);
 
-        setOpenAdd(false);
-        setDetail("");
-        setAmount("");
-        setCategory("食費");
+  /* ===== 今月合計 ===== */
+  const expenseTotal = useMemo((): number => {
+    return monthlyExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+  }, [monthlyExpenses]);
 
-        await loadExpenses();
-    };
+  return (
+    <>
+      {/* ===== Header ===== */}
+      <AppHeader
+        title="MoneyNote"
+        subtitle="ホーム"
+        onMenu={() => setMenuOpen(true)}
+        right={<RefreshButton onClick={handleRefresh} loading={loading} />}
+      />
 
-    const dateLabel = `今日：${now.toLocaleDateString("ja-JP")}`;
-    const monthLabel = `${y}年${m + 1}月`;
+      {/* ===== SideMenu ===== */}
+      <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
-    return (
-        <>
-            {/* ===== Header ===== */}
-            <AppHeader
-                title="MoneyNote"
-                subtitle="ホーム"
-                onMenu={() => setMenuOpen(true)}
-                right={<RefreshButton onClick={handleRefresh} />}
-            />
+      {/* ===== Main ===== */}
+      <div
+        style={{
+          minHeight: "100vh",
+          background:
+            "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef2f7 100%)",
+          paddingTop: 76,
+        }}
+      >
+        <main
+          style={{
+            maxWidth: 520,
+            margin: "0 auto",
+            padding: "20px 18px 110px",
+          }}
+        >
+          {/* 月合計カード */}
+          <MonthlyTotalCard
+            amount={expenseTotal}
+            dateLabel={dateLabel}
+            monthLabel={monthLabel}
+          />
 
-            {/* ===== SideMenu ===== */}
-            <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
+          {/* セグメント */}
+          <div style={{ marginTop: 18 }}>
+            <HomeSegment value={mode} onChange={setMode} />
+          </div>
 
-            {/* ===== Main ===== */}
-            <div
-                style={{
-                    minHeight: "100vh",
-                    background:
-                        "linear-gradient(180deg, #f8fafc 0%, #f1f5f9 40%, #eef2f7 100%)",
-                    paddingTop: 76,
-                }}
-            >
-                <main
-                    style={{
-                        maxWidth: 520,
-                        margin: "0 auto",
-                        padding: "20px 18px 110px",
-                    }}
-                >
-                    {/* 月合計カード */}
-                    <MonthlyTotalCard
-                        amount={expenseTotal}
-                        dateLabel={dateLabel}
-                        monthLabel={monthLabel}
-                    />
+          {/* コンテンツ */}
+          <div style={{ marginTop: 14 }}>
+            {loading ? (
+              <CenterSpinner />
+            ) : mode === "daily" ? (
+              <DailyView expenses={monthlyExpenses} />
+            ) : mode === "category" ? (
+              <CategoryBreakdown expenses={monthlyExpenses} />
+            ) : mode === "pie" ? (
+              <PieChartView expenses={monthlyExpenses} />
+            ) : mode === "monthly" ? (
+              <MonthlyView expenses={expenses} />
+            ) : (
+              <div style={{ opacity: 0.5 }}>未実装</div>
+            )}
+          </div>
+        </main>
+      </div>
 
-                    {/* セグメント */}
-                    <div style={{ marginTop: 18 }}>
-                        <HomeSegment value={mode} onChange={setMode} />
-                    </div>
-
-                    {/* コンテンツ */}
-                    <div style={{ marginTop: 14 }}>
-                        {loading ? (
-                            <CenterSpinner />
-                        ) : mode === "daily" ? (
-                            <DailyView expenses={monthlyExpenses} />
-                        ) : mode === "category" ? (
-                            <CategoryBreakdown expenses={monthlyExpenses} />
-                        ) : mode === "pie" ? (
-                            <PieChartView expenses={monthlyExpenses} />
-                        ) : mode === "monthly" ? (
-                            <MonthlyView expenses={expenses} />
-                        ) : (
-                            <div style={{ opacity: 0.5 }}>未実装</div>
-                        )}
-                    </div>
-
-                </main>
-            </div>
-
-            {/* ===== TabBar ===== */}
-            <TabBar />
-        </>
-    );
+      {/* ===== TabBar ===== */}
+      <TabBar />
+    </>
+  );
 }
 
 /* ===============================
    Refresh Button
 ================================ */
-function RefreshButton({ onClick }: { onClick: () => Promise<void> }) {
-    return (
-        <button
-            onClick={onClick}
-            style={{
-                border: "none",
-                background: "rgba(37,99,235,0.12)",
-                color: "#2563eb",
-                padding: "8px 14px",
-                borderRadius: 999,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: "pointer",
-            }}
-        >
-            更新
-        </button>
-    );
+function RefreshButton({
+  onClick,
+  loading,
+}: {
+  onClick: () => Promise<void>;
+  loading: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onClick()}
+      disabled={loading}
+      style={{
+        border: "none",
+        background: loading ? "rgba(148,163,184,0.25)" : "rgba(37,99,235,0.12)",
+        color: loading ? "#64748b" : "#2563eb",
+        padding: "8px 14px",
+        borderRadius: 999,
+        fontWeight: 700,
+        fontSize: 13,
+        cursor: loading ? "not-allowed" : "pointer",
+        opacity: loading ? 0.85 : 1,
+      }}
+    >
+      {loading ? "更新中…" : "更新"}
+    </button>
+  );
 }
 
+/* ===============================
+   Spinner
+================================ */
 function CenterSpinner() {
   return (
     <div
@@ -214,40 +213,3 @@ function CenterSpinner() {
     </div>
   );
 }
-
-/* ===============================
-   styles
-================================ */
-const inputStyle: React.CSSProperties = {
-    padding: "14px",
-    borderRadius: 12,
-    border: "1px solid #e5e7eb",
-    background: "#f9fafb",
-    fontSize: 16,
-    outline: "none",
-};
-
-const inputStyleDisabled: React.CSSProperties = {
-    ...inputStyle,
-    background: "#f3f4f6",
-    color: "#6b7280",
-};
-
-const cancelBtn: React.CSSProperties = {
-    padding: "12px 18px",
-    borderRadius: 12,
-    border: "1px solid #d1d5db",
-    background: "white",
-    fontWeight: 600,
-    cursor: "pointer",
-};
-
-const saveBtn: React.CSSProperties = {
-    padding: "12px 22px",
-    borderRadius: 12,
-    border: "none",
-    background: "linear-gradient(135deg,#3b82f6,#2563eb)",
-    color: "white",
-    fontWeight: 700,
-    cursor: "pointer",
-};
