@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useExpenseStore } from "@/lib/store/expenseStore";
+import type { Expense } from "@/lib/store/expenseStore";
 import {
   ResponsiveContainer,
   BarChart,
@@ -28,8 +28,7 @@ const theme = {
 /* ===============================
    MonthlyView
 ================================ */
-export default function MonthlyView() {
-  const { expenses } = useExpenseStore();
+export default function MonthlyView({ expenses }: { expenses: Expense[] }) {
   const [tab, setTab] = useState<"list" | "chart">("list");
 
   /* ===== 月別集計 ===== */
