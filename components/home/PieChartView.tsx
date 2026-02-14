@@ -76,7 +76,7 @@ export default function PieChartView({ expenses }: { expenses: Expense[] }) {
                   boxShadow: "0 14px 30px rgba(2,6,23,0.10)",
                   fontSize: 12,
                 }}
-                formatter={(value: any) => [`¥${Number(value).toLocaleString()}`, ""]}
+                formatter={(value) => [`¥${Number(value).toLocaleString()}`, ""]}
               />
             </PieChart>
           </ResponsiveContainer>

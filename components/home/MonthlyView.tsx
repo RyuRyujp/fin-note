@@ -139,7 +139,7 @@ function MonthlyChart({
               boxShadow: "0 14px 30px rgba(2,6,23,0.10)",
               fontSize: 12,
             }}
-            formatter={(v: number) => `¥${Number(v).toLocaleString()}`}
+            formatter={(value) => `¥${Number(value).toLocaleString()}`}
           />
           <Bar dataKey="total" fill={theme.primary} radius={[8, 8, 0, 0]} />
         </BarChart>
