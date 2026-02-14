@@ -35,7 +35,7 @@ export default function TransactionRow({ expense }: { expense: Expense }) {
         <div style={{ minWidth: 0 }}>
           <div style={title}>{expense.detail}</div>
           <div style={meta}>
-            {expense.date} ・ {expense.category}
+            {expense.date} ・ {expense.category} ・ {expense.payment}
           </div>
         </div>
       </div>

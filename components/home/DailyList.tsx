@@ -1,20 +1,26 @@
+"use client";
+
+import { useState } from "react";
 import { CategoryIcon } from "./CategoryIcon";
-import type { Expense } from "@/lib/store/expenseStore";
+import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 
 export default function DailyList({ expenses }: { expenses: Expense[] }) {
-  const groups: Record<string, Expense[]> = {};
+  const { selectExpense } = useExpenseStore();
 
+  const groups: Record<string, Expense[]> = {};
   for (const e of expenses) {
     const key = e.date;
+    if (!key) continue;
     if (!groups[key]) groups[key] = [];
     groups[key].push(e);
   }
 
   const sortedDates = Object.keys(groups).sort((a, b) => (a < b ? 1 : -1));
 
-  // expenses.date が "yyyy/MM/dd" の前提ならこれで一致する
-  const today = new Date().toLocaleDateString("ja-JP");
+  const now = new Date();
+  const today =
+    `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
 
   return (
     <div style={{ marginTop: 16 }}>
@@ -35,9 +41,15 @@ export default function DailyList({ expenses }: { expenses: Expense[] }) {
               {/* 金ライン（混色なし） */}
               <div style={goldLine} />
 
-              {groups[date].map((e) => (
-                <Row key={e.id} expense={e} />
-              ))}
+              <div style={list}>
+                {groups[date].map((e) => (
+                  <DailyRow
+                    key={e.id}
+                    expense={e}
+                    onClick={() => selectExpense(e)} // ✅ モーダルへ
+                  />
+                ))}
+              </div>
             </div>
           </div>
         );
@@ -46,30 +58,71 @@ export default function DailyList({ expenses }: { expenses: Expense[] }) {
   );
 }
 
-function Row({ expense }: { expense: Expense }) {
+/* =========================
+   Row (TransactionRow準拠)
+========================= */
+
+function DailyRow({
+  expense,
+  onClick,
+}: {
+  expense: Expense;
+  onClick: () => void;
+}) {
+  const [pressed, setPressed] = useState(false);
+
   const minus = expense.amount < 0;
+  const paymentLabel = expense.payment || "未分類";
 
   return (
-    <div style={row}>
-      <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-        <CategoryIcon category={expense.category} />
-
-        <div style={{ display: "grid", gap: 2 }}>
-          <div style={rowTitle}>{expense.detail}</div>
-          <div style={rowMeta}>{expense.category}</div>
-        </div>
-      </div>
-
-      <div
+    <>
+      <button
+        type="button"
         style={{
-          fontWeight: 850,
-          letterSpacing: 0.2,
-          color: minus ? "#ef4444" : theme.primary, // ✅ プラスは青
+          ...rowCard,
+          ...(pressed ? rowCardPressed : {}),
         }}
+        onClick={onClick}
+        onMouseDown={() => setPressed(true)}
+        onMouseUp={() => setPressed(false)}
+        onMouseLeave={() => setPressed(false)}
+        onTouchStart={() => setPressed(true)}
+        onTouchEnd={() => setPressed(false)}
       >
-        ¥{Math.abs(expense.amount).toLocaleString()}
-      </div>
-    </div>
+        {/* ===== 左 ===== */}
+        <div style={left}>
+          <CategoryIcon category={expense.category} />
+
+          <div style={{ minWidth: 0 }}>
+            <div style={title}>{expense.detail}</div>
+
+            {/* ✅ ここ：カテゴリ + 支払方法タグ */}
+            <div style={metaRow}>
+              <span style={tagPill}>{expense.category}</span>
+              <span style={tagPillSub}>{paymentLabel}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== 右 ===== */}
+        <div style={right}>
+          <div
+            style={{
+              ...amount,
+              // ✅ TransactionRow と同じ方針（プラス=青、マイナス=緑 ならそのまま）
+              color: minus ? "#16a34a" : theme.primary,
+            }}
+          >
+            ¥{Math.abs(expense.amount).toLocaleString()}
+          </div>
+
+          <div style={chevronWrap}>
+            <span style={chevronDot} />
+            <div style={chevron}>›</div>
+          </div>
+        </div>
+      </button>
+    </>
   );
 }
 
@@ -88,14 +141,14 @@ const dateLabelText: React.CSSProperties = {
   fontSize: 12.5,
   fontWeight: 800,
   letterSpacing: 0.2,
-  color: theme.accent, // ✅ 金
+  color: theme.accent,
 };
 
 const todayDot: React.CSSProperties = {
   width: 7,
   height: 7,
   borderRadius: 999,
-  background: theme.accent, // ✅ 金
+  background: theme.accent,
   boxShadow: "0 0 0 4px rgba(214,181,138,0.18)",
 };
 
@@ -104,10 +157,8 @@ const dayCard: React.CSSProperties = {
   background: theme.surface,
   borderRadius: 18,
   padding: 10,
-  border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
+  border: `1px solid rgba(29,78,137,0.12)`,
   boxShadow: "0 10px 24px rgba(2,6,23,0.06)",
-  display: "grid",
-  gap: 6,
   overflow: "hidden",
 };
 
@@ -117,30 +168,121 @@ const goldLine: React.CSSProperties = {
   left: 0,
   right: 0,
   height: 2,
-  background: theme.accent, // ✅ 金
+  background: theme.accent,
   opacity: 0.95,
   pointerEvents: "none",
 };
 
-const row: React.CSSProperties = {
+const list: React.CSSProperties = {
+  display: "grid",
+  gap: 6,
+};
+
+/* ===== Row card（TransactionRowのcardを小型化） ===== */
+
+const rowCard: React.CSSProperties = {
+  width: "100%",
+  position: "relative",
+
+  background: "transparent",
+  borderRadius: 14,
+  padding: "10px 8px",
+
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  gap: 14,
+
+  border: "none",
+  cursor: "pointer",
+  outline: "none",
+  textAlign: "left",
+
+  transition: "transform .12s ease, background .12s ease, opacity .12s ease",
+};
+
+const rowCardPressed: React.CSSProperties = {
+  transform: "scale(0.985)",
+  opacity: 0.92,
+  background: "rgba(29,78,137,0.06)", 
+};
+
+const left: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
-  justifyContent: "space-between",
-  padding: "10px 8px",
-  borderRadius: 14,
-  transition: "transform .12s ease, background .12s ease",
-
-  // 行ごとに軽い区切り（派手にしない）
-  background: "transparent",
+  gap: 12,
+  minWidth: 0,
 };
 
-const rowTitle: React.CSSProperties = {
+const title: React.CSSProperties = {
+  fontWeight: 850,
+  color: theme.text,
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  letterSpacing: 0.2,
+};
+const metaRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
+  marginTop: 4,
+  minWidth: 0,
+  flexWrap: "nowrap",
+  overflow: "hidden",
+};
+
+const tagPill: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  height: 20,
+  padding: "0 8px",
+  borderRadius: 999,
+  fontSize: 11.5,
   fontWeight: 800,
   color: theme.text,
+  background: "rgba(29,78,137,0.06)",
+  border: "1px solid rgba(29,78,137,0.12)",
+  whiteSpace: "nowrap",
 };
 
-const rowMeta: React.CSSProperties = {
-  fontSize: 12,
-  color: theme.subtext,
-  opacity: 0.9,
+const tagPillSub: React.CSSProperties = {
+  ...tagPill,
+  fontWeight: 750,
+  color: theme.text,
+  background: theme.accent, 
+  border: "1px solid rgba(2,6,23,0.08)",
+};
+
+const right: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  gap: 10,
+  flexShrink: 0,
+};
+
+const amount: React.CSSProperties = {
+  fontWeight: 950,
+  fontSize: 16,
+  letterSpacing: 0.2,
+};
+
+const chevronWrap: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
+};
+
+const chevronDot: React.CSSProperties = {
+  width: 6,
+  height: 6,
+  borderRadius: 999,
+  background: theme.accent,
+  boxShadow: "0 0 0 4px rgba(214,181,138,0.16)",
+};
+
+const chevron: React.CSSProperties = {
+  fontSize: 22,
+  opacity: 0.35,
+  color: theme.text,
 };

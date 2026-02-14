@@ -1,3 +1,4 @@
+import ExpenseDetailModal from "@/components/layout/ExpenseDetailModal";
 import "./globals.css";
 
 export const viewport = {
@@ -19,6 +20,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <body>
         <ThemeBoot />
         {children}
+        <ExpenseDetailModal />
       </body>
     </html>
   );

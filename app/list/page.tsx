@@ -6,9 +6,7 @@ import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import FilterBar from "@/components/list/FilterBar";
 import TransactionRow from "@/components/list/TransactionRow";
-import ExpenseDetailModal from "@/components/layout/ExpenseDetailModal";
 import TabBar from "@/components/nav/TabBar";
-
 
 export default function ListPage() {
     const { expenses, loadExpenses } = useExpenseStore() as {
@@ -19,15 +17,28 @@ export default function ListPage() {
     const [month, setMonth] = useState("02");
     const [category, setCategory] = useState("");
     const [menuOpen, setMenuOpen] = useState(false);
+    const [keyword, setKeyword] = useState("");
+    const [payment, setPayment] = useState("");
 
     /** フィルター */
+    /** フィルター */
     const filtered = useMemo(() => {
+        const kw = keyword.trim().toLowerCase();
+        const pay = payment.trim();
+
         return expenses.filter((e) => {
-            if (!e.date.startsWith(`${year}/${month}`)) return false;
-            if (category && e.category !== category) return false;
+            const date = (e.date ?? "").trim(); // "2026/02/15"
+            if (!date.startsWith(`${year}/${month}`)) return false;
+            if (category && (e.category ?? "") !== category) return false;
+            if (pay && (e.payment ?? "").trim() !== pay) return false;
+            if (kw) {
+                const hay = `${e.detail ?? ""} ${e.memo ?? ""}`.toLowerCase();
+                if (!hay.includes(kw)) return false;
+            }
+
             return true;
         });
-    }, [expenses, year, month, category]);
+    }, [expenses, year, month, category, keyword, payment]);
 
     /** 合計 */
     const total = useMemo(
@@ -64,6 +75,10 @@ export default function ListPage() {
                     setYear={setYear}
                     setMonth={setMonth}
                     setCategory={setCategory}
+                    keyword={keyword}
+                    payment={payment}
+                    setKeyword={setKeyword}
+                    setPayment={setPayment}
                 />
 
                 {/* 合計カード */}
@@ -86,9 +101,6 @@ export default function ListPage() {
                     ))}
                 </div>
             </div>
-
-            <ExpenseDetailModal />
-
 
             <TabBar />
 
