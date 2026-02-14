@@ -1,0 +1,60 @@
+:root {
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #0b1220;
+  --muted: rgba(11, 18, 32, 0.65);
+  --line: rgba(11, 18, 32, 0.10);
+
+  --tabbar-h: 74px;
+  --fab-size: 56px;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+}
+
+/* iPhone Safe Area + TabBar分の余白を下に確保 */
+.app-shell {
+  min-height: 100vh;
+  padding-top: env(safe-area-inset-top);
+  padding-left: max(16px, env(safe-area-inset-left));
+  padding-right: max(16px, env(safe-area-inset-right));
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom) + 16px);
+}
+
+/* iOSでフォームがズレないように */
+input, button {
+  font: inherit;
+}
+
+.card-ios {
+  background: #fff;
+  border-radius: 20px;
+  border: 1px solid rgba(0,0,0,0.04);
+  box-shadow:
+    0 10px 30px rgba(0,0,0,0.06),
+    0 2px 8px rgba(0,0,0,0.04);
+}
+
+.section-title {
+  font-size: 18px;
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.fade-in {
+  animation: fadeIn 0.35s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
