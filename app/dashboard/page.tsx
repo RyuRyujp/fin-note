@@ -57,7 +57,7 @@ export default function DashboardPage() {
     }, [loadExpenses]);
 
     async function handleRefresh() {
-        await loadExpenses();
+        await loadExpenses({ force: true });
     }
 
     /* ===== 今月判定 ===== */
