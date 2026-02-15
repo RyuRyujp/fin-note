@@ -98,17 +98,9 @@ export default function FilterBar({
 
       {/* ===== 詳細フィルター：本体（折りたたみ） ===== */}
       <div style={moreWrap(openMore)}>
+
         <div style={moreGrid}>
           <Field label="名前・内容検索">
-            <InputShell>
-              <input
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="例）スタバ "
-                style={input}
-              />
-            </InputShell>
-
             {keyword.trim() ? (
               <button
                 type="button"
@@ -119,9 +111,29 @@ export default function FilterBar({
                 クリア
               </button>
             ) : null}
+            <InputShell>
+              <input
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                placeholder="例）スタバ "
+                style={input}
+              />
+            </InputShell>
+
+
           </Field>
 
           <Field label="支払方法">
+            {payment ? (
+              <button
+                type="button"
+                onClick={() => setPayment("")}
+                style={clearMiniBtn}
+                aria-label="支払方法をクリア"
+              >
+                クリア
+              </button>
+            ) : null}
             <SelectShell>
               <select value={payment} onChange={(e) => setPayment(e.target.value)} style={select}>
                 <option value="">全て</option>
@@ -136,17 +148,6 @@ export default function FilterBar({
                 <option value="その他">その他</option>
               </select>
             </SelectShell>
-
-            {payment ? (
-              <button
-                type="button"
-                onClick={() => setPayment("")}
-                style={clearMiniBtn}
-                aria-label="支払方法をクリア"
-              >
-                クリア
-              </button>
-            ) : null}
           </Field>
         </div>
       </div>
