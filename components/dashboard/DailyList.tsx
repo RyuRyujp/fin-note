@@ -339,8 +339,8 @@ const chevron: React.CSSProperties = {
 
 const topFab: React.CSSProperties = {
   position: "fixed",
-  right: 16,
-  bottom: 80, // ✅ TabBarと被らない高さ
+  right: 12,
+  bottom: 100, // ✅ TabBarと被らない高さ
   zIndex: 60,
 
   width: 46,
