@@ -141,11 +141,8 @@ export default function DashboardPage() {
         }, 0);
 
         const diff = total - prevTotal;
-        const pct = prevTotal ? (diff / prevTotal) * 100 : null;
-
-        const sign = (n: number) => (n >= 0 ? "+" : "−");
-        const pctText = pct === null ? "—" : `${sign(pct)}${Math.abs(pct).toFixed(1)}%`;
-        const diffText = `${sign(diff)}${yen(Math.abs(diff))} / ${pctText}`;
+        const sign = (n: number) => (n >= 0 ? "+" : "-");
+        const diffText = `${sign(diff)}${yen(Math.abs(diff))}`;
 
         return [
             { label: "件数", value: `${count}件` },
