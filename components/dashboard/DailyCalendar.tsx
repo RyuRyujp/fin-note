@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState, useRef } from "react";
-import { CategoryIcon } from "./CategoryIcon";
+import { CategoryIcon } from "../layout/CategoryIcon";
 import type { Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 

@@ -5,7 +5,7 @@ import { useExpenseStore } from "@/lib/store/expenseStore";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
-import { CategoryIcon } from "@/components/home/CategoryIcon";
+import { CategoryIcon } from "@/components/layout/CategoryIcon";
 import { theme } from "@/lib/theme";
 
 /* ===============================

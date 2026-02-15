@@ -26,10 +26,14 @@ export type FixedExpense = {
 };
 
 export type LivingExpense = {
-    id: string;
-    detail: string;
-    amount: number;
-    day: number;
+  id: string;
+  detail: string;
+  amount: number;     
+  day: number;
+  category: string;
+  payment: string;
+  done: string;    
+  memo: string;
 };
 
 type State = {

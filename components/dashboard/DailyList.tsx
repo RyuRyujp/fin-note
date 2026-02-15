@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { CategoryIcon } from "./CategoryIcon";
+import { CategoryIcon } from "../layout/CategoryIcon";
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 

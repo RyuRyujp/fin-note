@@ -3,13 +3,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 
-import MonthlyTotalCard from "@/components/home/MonthlyTotalCard";
-import HomeSegment from "@/components/home/HomeSegment";
-import CategoryBreakdown from "@/components/home/CategoryBreakdown";
-import DailyView from "@/components/home/DailyView";
-import PieChartView from "@/components/home/PieChartView";
-import MonthlyView from "@/components/home/MonthlyView";
+import MonthlyTotalCard from "@/components/dashboard/MonthlyTotalCard";
+import HomeSegment from "@/components/dashboard/HomeSegment";
+import DailyView from "@/components/dashboard/DailyView";
+import PieChartView from "@/components/dashboard/PieChartView";
+import MonthlyView from "@/components/dashboard/MonthlyView";
+import LivingNotice from "@/components/dashboard/LivingNotice";
 
+import CategoryBreakdown from "@/components/layout/CategoryBreakdown";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
@@ -40,7 +41,7 @@ function parseJPDate(dateStr: string): Date | null {
    Dashboard
 ================================ */
 export default function DashboardPage() {
-    const { expenses, loadExpenses, loading } = useExpenseStore();
+    const { expenses, loadExpenses, loading, livingExpenses } = useExpenseStore();
 
     const [mode, setMode] = useState<Mode>("daily");
     const [menuOpen, setMenuOpen] = useState(false);
@@ -181,6 +182,9 @@ export default function DashboardPage() {
                         padding: "20px 18px 110px",
                     }}
                 >
+
+                    <LivingNotice livingExpenses={livingExpenses} />
+
                     {/* 月合計カード */}
                     <MonthlyTotalCard
                         amount={expenseTotal}
