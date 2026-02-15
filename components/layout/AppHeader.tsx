@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
 import { theme } from "@/lib/theme";
 
 type Props = {
@@ -24,16 +23,7 @@ export default function AppHeader({ title, subtitle, onMenu, right }: Props) {
 
           <div style={{ minWidth: 0 }}>
             <div style={titleStyle}>
-              {/* ✅ ロゴ */}
-              <Image
-                src="/logo.png"
-                alt={`${title} logo`}
-                width={36}
-                height={36}
-                priority
-                style={logoStyle}
-              />
-
+              <span style={titleAccentDot} />
               <span style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
                 {title}
               </span>
@@ -86,7 +76,7 @@ const header: React.CSSProperties = {
   background: theme.surface,
   backdropFilter: "blur(16px)",
 
-  borderBottom: `1px solid ${theme.border}`,
+  borderBottom: `1px solid ${theme.border}`, 
   boxShadow: "0 10px 22px rgba(2,6,23,0.06)",
 
   // iPhone safe area
@@ -99,7 +89,7 @@ const goldLine: React.CSSProperties = {
   right: 0,
   top: 0,
   height: 2,
-  background: theme.accent,
+  background: theme.accent, // ✅ 金
   opacity: 0.95,
   pointerEvents: "none",
 };
@@ -119,16 +109,20 @@ const titleStyle: React.CSSProperties = {
   alignItems: "center",
   gap: 10,
 
-  fontSize: 22,
+  fontSize: 22, // 少し締める
   fontWeight: 950,
   letterSpacing: -0.2,
-  lineHeight: 1.12, 
-  color: theme.primary,
+  lineHeight: 1.08,
+
+  color: theme.primary, // ✅ タイトルは青
 };
 
-
-const logoStyle: React.CSSProperties = {
-  borderRadius: 4,
+const titleAccentDot: React.CSSProperties = {
+  width: 9,
+  height: 9,
+  borderRadius: 999,
+  background: theme.accent, // ✅ 金
+  boxShadow: "0 0 0 5px rgba(214,181,138,0.16)",
   flexShrink: 0,
 };
 
@@ -175,6 +169,6 @@ const menuBtnPressed: React.CSSProperties = {
 const menuIcon: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 900,
-  color: theme.primary,
+  color: theme.primary, // ✅ 青
   lineHeight: 1,
 };

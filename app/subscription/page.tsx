@@ -34,7 +34,7 @@ export default function SubscriptionsPage() {
 
   return (
     <>
-      <AppHeader title="MoneyNote" subtitle="サブスク" onMenu={() => setMenuOpen(true)} />
+      <AppHeader title="Fin Note" subtitle="サブスク" onMenu={() => setMenuOpen(true)} />
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div style={pageWrap}>

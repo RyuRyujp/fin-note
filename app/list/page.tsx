@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
@@ -17,7 +17,7 @@ function pad2(s: string) {
   return String(s).padStart(2, "0");
 }
 
-export default function ListPage() {
+function ListPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -100,7 +100,7 @@ export default function ListPage() {
   return (
     <>
       <AppHeader
-        title="MoneyNote"
+        title="Fin Note"
         subtitle="一覧"
         onMenu={() => setMenuOpen(true)}
         right={<RefreshButton onClick={loadExpenses} />}
@@ -146,6 +146,14 @@ export default function ListPage() {
 
       <TabBar />
     </>
+  );
+}
+
+export default function ListPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: 16 }}>Loading...</div>}>
+      <ListPageInner />
+    </Suspense>
   );
 }
 

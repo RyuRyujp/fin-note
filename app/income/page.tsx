@@ -33,7 +33,7 @@ export default function IncomePage() {
 
   return (
     <>
-      <AppHeader title="MoneyNote" subtitle="収入" onMenu={() => setMenuOpen(true)} />
+      <AppHeader title="Fin Note" subtitle="収入" onMenu={() => setMenuOpen(true)} />
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div style={container}>
