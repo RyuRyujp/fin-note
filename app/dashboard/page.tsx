@@ -10,7 +10,7 @@ import PieChartView from "@/components/dashboard/PieChartView";
 import MonthlyView from "@/components/dashboard/MonthlyView";
 import LivingNotice from "@/components/dashboard/LivingNotice";
 
-import CategoryBreakdown from "@/components/layout/CategoryBreakdown";
+import CategoryBreakdown from "@/components/dashboard/CategoryBreakdown";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
@@ -157,7 +157,7 @@ export default function DashboardPage() {
         <>
             {/* ===== Header ===== */}
             <AppHeader
-                title="MoneyNote"
+                title="Fin Note"
                 subtitle="ホーム"
                 onMenu={() => setMenuOpen(true)}
                 right={<RefreshButton onClick={handleRefresh} loading={loading} />}

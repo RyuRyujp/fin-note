@@ -522,16 +522,7 @@ function SubscriptionForm({
           </span>
         </button>
       </Field>
-
-      <Field label="メモ">
-        <textarea
-          value={memo}
-          onChange={(e) => setMemo(e.target.value)}
-          rows={3}
-          style={{ ...input, resize: "none" }}
-        />
-      </Field>
-
+      
       <FormButtons onClose={onClose} onSubmit={onSubmit} saving={saving} />
     </div>
   );

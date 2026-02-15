@@ -8,7 +8,7 @@ export const viewport = {
 };
 
 export const metadata = {
-  title: "MoneyNote",
+  title: "FinNote",
   manifest: "/manifest.json",
 };
 

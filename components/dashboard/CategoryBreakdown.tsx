@@ -1,8 +1,36 @@
-type Item = { category: string; total: number };
+"use client";
+
+import { useRouter } from "next/navigation";
 import type { Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 
+/* ===============================
+   型
+================================ */
+type Item = { category: string; total: number };
+
+type YM = { year: string; month: string } | null;
+
+/* ===============================
+   Utils
+================================ */
+function pickYearMonthFromExpenses(expenses: Expense[]): YM {
+  for (const e of expenses) {
+    const d = (e.date || "").trim();
+    // "yyyy/MM/dd" or "yyyy-MM-dd"
+    const m = d.match(/^(\d{4})[\/-](\d{1,2})/);
+    if (m) {
+      const year = m[1];
+      const month = String(m[2]).padStart(2, "0");
+      return { year, month };
+    }
+  }
+  return null;
+}
+
 export default function CategoryBreakdown({ expenses }: { expenses: Expense[] }) {
+  const router = useRouter();
+
   // 集計（カテゴリ→合計）
   const map: Record<string, number> = {};
   for (const e of expenses) {
@@ -17,6 +45,21 @@ export default function CategoryBreakdown({ expenses }: { expenses: Expense[] })
 
   const max = items.length ? Math.max(...items.map((x) => x.total)) : 0;
 
+  // この内訳が「どの年月」のデータか推測して一緒に渡す（取れなければ category だけ渡す）
+  const ym = pickYearMonthFromExpenses(expenses);
+
+  const goListWithCategory = (category: string) => {
+    const params = new URLSearchParams();
+    params.set("category", category);
+
+    if (ym) {
+      params.set("year", ym.year);
+      params.set("month", ym.month);
+    }
+
+    router.push(`/list?${params.toString()}`);
+  };
+
   return (
     <div style={{ marginTop: 14 }}>
       {/* 見出し */}
@@ -30,7 +73,13 @@ export default function CategoryBreakdown({ expenses }: { expenses: Expense[] })
           const ratio = max > 0 ? Math.min(1, it.total / max) : 0;
 
           return (
-            <div key={it.category} style={card}>
+            <button
+              key={it.category}
+              type="button"
+              style={cardButton}
+              onClick={() => goListWithCategory(it.category)}
+              aria-label={`${it.category} の明細を見る`}
+            >
               {/* 金ライン（混色なし） */}
               <div style={goldLine} />
 
@@ -51,7 +100,7 @@ export default function CategoryBreakdown({ expenses }: { expenses: Expense[] })
 
                 <div style={amountText}>¥{it.total.toLocaleString()}</div>
               </div>
-            </div>
+            </button>
           );
         })}
       </div>
@@ -74,7 +123,7 @@ const titleDot: React.CSSProperties = {
   width: 8,
   height: 8,
   borderRadius: 999,
-  background: theme.accent, // ✅ 金
+  background: theme.accent,
   boxShadow: "0 0 0 4px rgba(214,181,138,0.18)",
 };
 
@@ -91,8 +140,17 @@ const card: React.CSSProperties = {
   borderRadius: 16,
   padding: "14px 14px",
   background: theme.surface,
-  border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
+  border: `1px solid rgba(29,78,137,0.12)`,
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
+};
+
+const cardButton: React.CSSProperties = {
+  ...card,
+  width: "100%",
+  textAlign: "left",
+  cursor: "pointer",
+  appearance: "none",
+  outline: "none",
 };
 
 const goldLine: React.CSSProperties = {
@@ -101,7 +159,7 @@ const goldLine: React.CSSProperties = {
   left: 0,
   right: 0,
   height: 2,
-  background: theme.accent, // ✅ 金
+  background: theme.accent,
   opacity: 0.95,
   pointerEvents: "none",
 };
@@ -115,14 +173,14 @@ const row: React.CSSProperties = {
 
 const catName: React.CSSProperties = {
   fontWeight: 900,
-  color: theme.primary, // ✅ カテゴリ名は青
+  color: theme.primary,
   letterSpacing: 0.2,
 };
 
 const amountText: React.CSSProperties = {
   fontWeight: 950,
   letterSpacing: 0.2,
-  color: theme.primary, // ✅ 金額は青
+  color: theme.primary,
 };
 
 const barRail: React.CSSProperties = {
@@ -130,13 +188,13 @@ const barRail: React.CSSProperties = {
   maxWidth: "52vw",
   height: 8,
   borderRadius: 999,
-  background: "rgba(29,78,137,0.10)", // ✅ 青の薄いレール
+  background: "rgba(29,78,137,0.10)",
   overflow: "hidden",
 };
 
 const barFill: React.CSSProperties = {
   height: "100%",
   borderRadius: 999,
-  background: theme.primary, // ✅ 青のみ
+  background: theme.primary,
   transition: "width .28s cubic-bezier(.22,.9,.32,1)",
 };
