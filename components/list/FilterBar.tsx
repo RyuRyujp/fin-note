@@ -104,7 +104,7 @@ export default function FilterBar({
               <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="例）スタバ / 山田 / Amazon"
+                placeholder="例）スタバ "
                 style={input}
               />
             </InputShell>
@@ -268,7 +268,7 @@ const input: React.CSSProperties = {
   border: "none",
   outline: "none",
   background: "transparent",
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: 800,
   color: theme.text,
 };

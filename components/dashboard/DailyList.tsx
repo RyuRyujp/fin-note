@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CategoryIcon } from "../layout/CategoryIcon";
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
@@ -20,7 +20,42 @@ export default function DailyList({ expenses }: { expenses: Expense[] }) {
 
   const now = new Date();
   const today =
-    `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(now.getDate()).padStart(2, "0")}`;
+    `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, "0")}/${String(
+      now.getDate()
+    ).padStart(2, "0")}`;
+
+  // ✅ スクロールしたらTopボタン表示
+  const [showTop, setShowTop] = useState(false);
+
+  useEffect(() => {
+    let ticking = false;
+
+    const calc = () => {
+      const y =
+        window.scrollY ||
+        document.documentElement.scrollTop ||
+        document.body.scrollTop ||
+        0;
+      setShowTop(y > 420);
+    };
+
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        calc();
+        ticking = false;
+      });
+    };
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    calc(); // 初期判定
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  const scrollToTop = () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div style={{ marginTop: 16 }}>
@@ -54,6 +89,19 @@ export default function DailyList({ expenses }: { expenses: Expense[] }) {
           </div>
         );
       })}
+
+      {/* ✅ 一番上へ戻るボタン */}
+      <button
+        type="button"
+        aria-label="一番上へ戻る"
+        onClick={scrollToTop}
+        style={{
+          ...topFab,
+          ...(showTop ? topFabOn : topFabOff),
+        }}
+      >
+        <span style={topFabArrow}>↑</span>
+      </button>
     </div>
   );
 }
@@ -109,7 +157,6 @@ function DailyRow({
           <div
             style={{
               ...amount,
-              // ✅ TransactionRow と同じ方針（プラス=青、マイナス=緑 ならそのまま）
               color: minus ? "#16a34a" : theme.primary,
             }}
           >
@@ -204,7 +251,7 @@ const rowCard: React.CSSProperties = {
 const rowCardPressed: React.CSSProperties = {
   transform: "scale(0.985)",
   opacity: 0.92,
-  background: "rgba(29,78,137,0.06)", 
+  background: "rgba(29,78,137,0.06)",
 };
 
 const left: React.CSSProperties = {
@@ -222,6 +269,7 @@ const title: React.CSSProperties = {
   textOverflow: "ellipsis",
   letterSpacing: 0.2,
 };
+
 const metaRow: React.CSSProperties = {
   display: "flex",
   alignItems: "center",
@@ -250,7 +298,7 @@ const tagPillSub: React.CSSProperties = {
   ...tagPill,
   fontWeight: 750,
   color: theme.text,
-  background: theme.accent, 
+  background: theme.accent,
   border: "1px solid rgba(2,6,23,0.08)",
 };
 
@@ -285,4 +333,48 @@ const chevron: React.CSSProperties = {
   fontSize: 22,
   opacity: 0.35,
   color: theme.text,
+};
+
+/* ===== Top FAB ===== */
+
+const topFab: React.CSSProperties = {
+  position: "fixed",
+  right: 16,
+  bottom: 80, // ✅ TabBarと被らない高さ
+  zIndex: 60,
+
+  width: 46,
+  height: 46,
+  borderRadius: 999,
+
+  background: theme.surface,
+  border: "1px solid rgba(2,6,23,0.10)",
+  boxShadow: "0 16px 34px rgba(2,6,23,0.14)",
+
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+
+  cursor: "pointer",
+  outline: "none",
+  transition: "opacity .18s ease, transform .18s ease",
+};
+
+const topFabOn: React.CSSProperties = {
+  opacity: 1,
+  transform: "translateY(0)",
+  pointerEvents: "auto",
+};
+
+const topFabOff: React.CSSProperties = {
+  opacity: 0,
+  transform: "translateY(10px)",
+  pointerEvents: "none",
+};
+
+const topFabArrow: React.CSSProperties = {
+  fontSize: 18,
+  fontWeight: 950,
+  color: theme.primary,
+  lineHeight: 1,
 };

@@ -238,7 +238,7 @@ export default function TabBar() {
           bottom: 0,
           transform: open ? "translateY(0%)" : "translateY(100%)",
           transition: "transform 0.32s cubic-bezier(.22,.9,.32,1)",
-          zIndex: 1001, // ★Overlayより上
+          zIndex: 1001, 
           pointerEvents: open ? "auto" : "none",
         }}
       >
