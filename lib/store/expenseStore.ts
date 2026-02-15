@@ -26,14 +26,14 @@ export type FixedExpense = {
 };
 
 export type LivingExpense = {
-  id: string;
-  detail: string;
-  amount: number;     
-  day: number;
-  category: string;
-  payment: string;
-  done: string;    
-  memo: string;
+    id: string;
+    detail: string;
+    amount: number;
+    day: number;
+    category: string;
+    payment: string;
+    done: string;
+    memo: string;
 };
 
 type State = {
@@ -63,7 +63,11 @@ export const useExpenseStore = create<State>((set) => ({
     selectExpense: (e) => set({ selectedExpense: e }),
 
     deleteExpense: async (id) => {
-        await fetch(`/api/delete-expense`, { method: "DELETE" });
+        await fetch("/api/delete-expense", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recordId: id }), 
+        });
 
         set((state) => ({
             expenses: state.expenses.filter((e) => e.id !== id),

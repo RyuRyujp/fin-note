@@ -9,7 +9,7 @@ export async function POST(req: Request) {
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
       action: "deleteRecord",
-      recordId: body.id,
+      recordId: body.recordId,
     }),
   });
 

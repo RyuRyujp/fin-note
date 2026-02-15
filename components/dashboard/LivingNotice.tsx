@@ -108,18 +108,14 @@ export default function LivingNotice({ livingExpenses }: Props) {
             setSaving((p) => ({ ...p, [key]: true }));
 
             const now = new Date();
-            const date = formatYMDSlash(now);
 
-            const res = await fetch("/api/add-expense", {
+            const res = await fetch("/api/add-livingExpense", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
-                    date,
-                    detail: n.detail,
+                    livingId: n.id,
                     amount,
-                    category: n.category,
                     payment: n.payment,
-                    memo: n.memo ?? "",
                 }),
             });
 
