@@ -1,4 +1,3 @@
-// app/list/page.tsx
 import { Suspense } from "react";
 import ListPageClient from "./ListPageClient";
 

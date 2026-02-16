@@ -63,7 +63,7 @@ export default function DashboardPage() {
     /* ===== 今月判定 ===== */
     const now = new Date();
     const y = now.getFullYear();
-    const m = now.getMonth(); // 0-based
+    const m = now.getMonth(); 
 
     const dateLabel = `今日：${now.toLocaleDateString("ja-JP")}`;
     const monthLabel = `${y}年${m + 1}月`;
