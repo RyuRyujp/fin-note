@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState, useRef } from "react";
+import { useMemo, useState } from "react";
 import { CategoryIcon } from "../layout/CategoryIcon";
 import type { Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
@@ -10,7 +10,6 @@ import { theme } from "@/lib/theme";
 ================================ */
 export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
   const [monthOffset, setMonthOffset] = useState(0);
-  const touchStartX = useRef<number | null>(null);
 
   const base = new Date();
   const viewDate = new Date(base.getFullYear(), base.getMonth() + monthOffset);
@@ -36,9 +35,9 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
   const monthlyExpenses = useMemo(
     () =>
       expenses.filter((e) => {
-        // e.date が YYYY/MM/DD 想定なので parse は一応補正
         const parts = e.date.split("/").map(Number);
-        const d = parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(e.date);
+        const d =
+          parts.length === 3 ? new Date(parts[0], parts[1] - 1, parts[2]) : new Date(e.date);
         return d.getFullYear() === y && d.getMonth() === m;
       }),
     [expenses, y, m]
@@ -59,25 +58,13 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
     [monthlyExpenses, activeDate]
   );
 
-  /* ===== スワイプ ===== */
-  const onTouchStart = (e: React.TouchEvent) => {
-    touchStartX.current = e.touches[0].clientX;
-  };
-
-  const onTouchEnd = (e: React.TouchEvent) => {
-    if (touchStartX.current === null) return;
-    const diff = e.changedTouches[0].clientX - touchStartX.current;
-
-    if (diff > 60) setMonthOffset((v) => v - 1);
-    if (diff < -60) setMonthOffset((v) => v + 1);
-
-    touchStartX.current = null;
-  };
-
-  /* ===== 日配列 ===== */
+  /* ===== 日配列（前後の空白も含めて週を埋める） ===== */
   const days: (number | null)[] = [];
   for (let i = 0; i < startWeek; i++) days.push(null);
   for (let d = 1; d <= lastDay; d++) days.push(d);
+
+  // ✅ 末尾も埋めて、カレンダーの外枠・はみ出し感を出さない
+  while (days.length % 7 !== 0) days.push(null);
 
   const monthLabel = `${y}年${m + 1}月`;
 
@@ -108,7 +95,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
       </div>
 
       {/* ================= カレンダー ================= */}
-      <div style={calendarCard} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+      <div style={calendarCard}>
         {/* 金ライン（混色なし） */}
         <div style={goldLine} />
 
@@ -118,7 +105,12 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
             <div
               key={d}
               style={{
-                color: idx === 0 ? "rgba(239,68,68,0.85)" : idx === 6 ? "rgba(59,130,246,0.85)" : theme.subtext,
+                color:
+                  idx === 0
+                    ? "rgba(239,68,68,0.85)"
+                    : idx === 6
+                    ? "rgba(59,130,246,0.85)"
+                    : theme.subtext,
                 fontWeight: 800,
               }}
             >
@@ -130,7 +122,8 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
         {/* 日付 */}
         <div style={grid}>
           {days.map((d, i) => {
-            if (!d) return <div key={i} />;
+            // ✅ 該当月以外（空白）は完全に見えないセルにする（枠/影なし）
+            if (!d) return <div key={i} style={blankCell} aria-hidden />;
 
             const key = `${y}/${String(m + 1).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
             const total = totals[key];
@@ -139,7 +132,9 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
             const isToday = key === todayKey;
             const isActive = key === activeDate;
 
-            // 表現を変える：activeは塗り（青）＋下バー（金）、todayはリング（金）
+            // ✅ 金額行の高さは常に確保（表示だけ切替）→ 幅/高さが揃う
+            const amountText = hasTotal ? `¥${Math.abs(total!).toLocaleString()}` : "¥0";
+
             return (
               <button
                 key={key}
@@ -163,18 +158,15 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
                   {d}
                 </div>
 
-                {hasTotal && (
-                  <div
-                    style={{
-                      fontSize: 10,
-                      marginTop: 3,
-                      fontWeight: 800,
-                      color: isActive ? "rgba(255,255,255,0.92)" : theme.primary,
-                    }}
-                  >
-                    ¥{Math.abs(total!).toLocaleString()}
-                  </div>
-                )}
+                <div
+                  style={{
+                    ...amountRow,
+                    visibility: hasTotal ? "visible" : "hidden",
+                    color: isActive ? "rgba(255,255,255,0.92)" : theme.primary,
+                  }}
+                >
+                  {amountText}
+                </div>
 
                 {/* activeだけ金の下バー（混色なし） */}
                 {isActive && <div style={activeGoldBar} />}
@@ -195,7 +187,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
 /* ===============================
    日別セクション
 ================================ */
-function DaySection({ date, expenses }: { date: string, expenses: Expense[] }) {
+function DaySection({ date, expenses }: { date: string; expenses: Expense[] }) {
   return (
     <div>
       {/* 日付ラベル（アクセント金） */}
@@ -289,6 +281,10 @@ const calendarCard: React.CSSProperties = {
   border: `1px solid ${theme.border}`,
   boxShadow: "0 14px 30px rgba(2,6,23,0.08)",
   overflow: "hidden",
+  // ✅ 影や枠が“はみ出て見える”対策（より強くクリップ）
+  clipPath: "inset(0 round 20px)",
+  WebkitClipPath: "inset(0 round 20px)",
+  isolation: "isolate",
 };
 
 const goldLine: React.CSSProperties = {
@@ -314,6 +310,15 @@ const grid: React.CSSProperties = {
   display: "grid",
   gridTemplateColumns: "repeat(7,1fr)",
   gap: 8,
+  // ✅ 行の高さも揃える（中身の有無でガタつかない）
+  gridAutoRows: 66,
+};
+
+const blankCell: React.CSSProperties = {
+  // ✅ 完全に“何もない”空白（枠/影/背景なし）
+  background: "transparent",
+  border: "none",
+  boxShadow: "none",
 };
 
 const dayBtn: React.CSSProperties = {
@@ -322,10 +327,14 @@ const dayBtn: React.CSSProperties = {
   background: theme.surface,
   borderRadius: 14,
   padding: "8px 6px",
-  minHeight: 58,
+  height: "100%", // ✅ gridAutoRows に合わせて固定
+  width: "100%",
   cursor: "pointer",
   transition: "transform .12s ease, box-shadow .18s ease, border-color .18s ease",
   boxShadow: "0 6px 14px rgba(2,6,23,0.05)",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
 };
 
 const dayBtnActive: React.CSSProperties = {
@@ -337,6 +346,14 @@ const dayBtnActive: React.CSSProperties = {
 const dayBtnTodayRing: React.CSSProperties = {
   borderColor: "rgba(214,181,138,0.65)", // ✅ 金リング（混色なし）
   boxShadow: "0 12px 22px rgba(2,6,23,0.10)",
+};
+
+const amountRow: React.CSSProperties = {
+  fontSize: 10,
+  marginTop: 3,
+  fontWeight: 800,
+  height: 14, // ✅ 金額あり/なしで高さ固定
+  lineHeight: "14px",
 };
 
 const activeGoldBar: React.CSSProperties = {
