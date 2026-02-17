@@ -96,8 +96,13 @@ export default function SubscriptionsPage() {
             </div>
           </div>
 
-          <div style={totalAmount}>¥{total.toLocaleString()}</div>
-          <div style={totalHint}>{hint}</div>
+          {/* ✅ fixed のときだけ金額・ヒントを表示 */}
+          {isFixed && (
+            <>
+              <div style={totalAmount}>¥{total.toLocaleString()}</div>
+              <div style={totalHint}>{hint}</div>
+            </>
+          )}
         </div>
 
         {/* ===== リスト ===== */}

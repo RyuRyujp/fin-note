@@ -180,7 +180,7 @@ function MenuSection({
 ================================ */
 
 type MenuItemProps = {
-  icon: LucideIcon; // ✅ any禁止
+  icon: LucideIcon; 
   href: string;
   title: string;
   sub: string;

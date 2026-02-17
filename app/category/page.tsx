@@ -22,7 +22,8 @@ export default function CategoryPage() {
       { id: "c3", name: "交通費" },
       { id: "c4", name: "日用品" },
       { id: "c5", name: "娯楽・趣味" },
-      { id: "c6", name: "未分類" },
+      { id: "c6", name: "雑貨" },
+      { id: "c7", name: "未分類" },
     ],
     []
   );

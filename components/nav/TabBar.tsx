@@ -624,7 +624,7 @@ const fabStyle: React.CSSProperties = {
     borderRadius: "50%",
     border: "none",
 
-    background: `linear-gradient(135deg, ${theme.primary}, #163E6D)`,
+    background: theme.primary,
     color: "white",
 
     display: "flex",
