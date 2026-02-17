@@ -1,15 +1,45 @@
 "use client";
 
+import type React from "react";
 import { useState, useEffect } from "react";
 import { useExpenseStore, Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 
-type InputChange = React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+type InputChange =
+  React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>;
+
+
+type Option = { value: string; label: string };
+
+const CATEGORY_OPTIONS: Option[] = [
+  { value: "食費", label: "食費" },
+  { value: "交通費", label: "交通費" },
+  { value: "日用品", label: "日用品" },
+  { value: "雑貨", label: "雑貨" },
+  { value: "サブスク", label: "サブスク" },
+  { value: "娯楽・趣味", label: "娯楽・趣味" },
+  { value: "その他", label: "その他" },
+];
+
+const PAYMENT_OPTIONS: Option[] = [
+  { value: "クレジット：三菱UFJ", label: "クレジット：三菱UFJ" },
+  { value: "クレジット：楽天", label: "クレジット：楽天" },
+  { value: "クレジット：EPOS", label: "クレジット：EPOS" },
+  { value: "クレジット：三井住友", label: "クレジット：三井住友" },
+  { value: "PayPay", label: "PayPay" },
+  { value: "現金", label: "現金" },
+  { value: "その他", label: "その他" },
+];
 
 export default function ExpenseDetailModal() {
-  const { selectedExpense, selectExpense, deleteExpense, updateExpense } = useExpenseStore();
+  const { selectedExpense, selectExpense, deleteExpense, updateExpense } =
+    useExpenseStore();
 
   const [form, setForm] = useState<Expense | null>(null);
+
+  const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const busy = saving || deleting;
 
   useEffect(() => {
     setForm(selectedExpense);
@@ -19,15 +49,40 @@ export default function ExpenseDetailModal() {
 
   const change =
     (key: keyof Expense) =>
-    (e: InputChange) => {
-      const v = e.target.value;
-      setForm({
-        ...form,
-        [key]: key === "amount" ? Number(v) : v,
-      });
-    };
+      (e: InputChange) => {
+        const v = e.target.value;
+        setForm({
+          ...form,
+          [key]: key === "amount" ? Number(v) : v,
+        });
+      };
 
-  const close = () => selectExpense(null);
+  const close = () => {
+    if (busy) return;
+    selectExpense(null);
+  };
+
+  const onDelete = async () => {
+    if (busy) return;
+    setDeleting(true);
+    try {
+      await Promise.resolve(deleteExpense(form.id));
+      selectExpense(null);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+  const onSave = async () => {
+    if (busy) return;
+    setSaving(true);
+    try {
+      await Promise.resolve(updateExpense(form));
+      selectExpense(null);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   return (
     <div style={overlay} onClick={close}>
@@ -42,7 +97,15 @@ export default function ExpenseDetailModal() {
             <div style={title}>支出の詳細</div>
           </div>
 
-          <button style={xBtn} onClick={close} aria-label="閉じる">
+          <button
+            style={{
+              ...xBtn,
+              ...(busy ? btnDisabled : {}),
+            }}
+            onClick={close}
+            aria-label="閉じる"
+            disabled={busy}
+          >
             ✕
           </button>
         </div>
@@ -50,30 +113,84 @@ export default function ExpenseDetailModal() {
         {/* ===== フォーム ===== */}
         <div style={formGrid}>
           <Input label="内容" value={form.detail} onChange={change("detail")} />
-          <Input label="金額" value={form.amount} onChange={change("amount")} type="number" />
-          <Input label="日付" value={form.date} onChange={change("date")} type="text" />
-          <Input label="カテゴリ" value={form.category} onChange={change("category")} />
-          <Input label="支払方法" value={form.payment} onChange={change("payment")} />
+          <Input
+            label="金額"
+            value={form.amount}
+            onChange={change("amount")}
+            type="number"
+          />
+          <Input
+            label="日付"
+            value={form.date}
+            onChange={change("date")}
+            type="text"
+          />
+          <Select
+            label="カテゴリ"
+            value={form.category}
+            onChange={change("category")}
+            options={CATEGORY_OPTIONS}
+          />
+
+          <Select
+            label="支払方法"
+            value={form.payment}
+            onChange={change("payment")}
+            options={PAYMENT_OPTIONS}
+          />
         </div>
 
         {/* ===== ボタン ===== */}
         <div style={actions}>
           <button
-            style={deleteBtn}
-            onClick={() => deleteExpense(form.id)}
+            style={{
+              ...deleteBtn,
+              ...btnInner,
+              ...(busy ? btnDisabled : {}),
+            }}
+            onClick={onDelete}
+            disabled={busy}
+            aria-busy={deleting}
           >
-            削除
+            {deleting ? (
+              <>
+                <InlineSpinner />
+                削除中
+              </>
+            ) : (
+              "削除"
+            )}
           </button>
 
           <button
-            style={saveBtn}
-            onClick={() => updateExpense(form)}
+            style={{
+              ...saveBtn,
+              ...btnInner,
+              ...(busy ? btnDisabled : {}),
+            }}
+            onClick={onSave}
+            disabled={busy}
+            aria-busy={saving}
           >
-            保存
+            {saving ? (
+              <>
+                <InlineSpinner />
+                保存中
+              </>
+            ) : (
+              "保存"
+            )}
           </button>
         </div>
 
-        <button style={closeBtn} onClick={close}>
+        <button
+          style={{
+            ...closeBtn,
+            ...(busy ? btnDisabled : {}),
+          }}
+          onClick={close}
+          disabled={busy}
+        >
           閉じる
         </button>
       </div>
@@ -114,6 +231,98 @@ function Input({
     </label>
   );
 }
+
+function InlineSpinner({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      aria-hidden="true"
+      focusable="false"
+      style={{ display: "block" }}
+    >
+      <circle
+        cx="12"
+        cy="12"
+        r="9"
+        fill="none"
+        stroke="rgba(255,255,255,0.35)"
+        strokeWidth="3"
+      />
+      <path
+        d="M21 12a9 9 0 0 1-9 9"
+        fill="none"
+        stroke="white"
+        strokeWidth="3"
+        strokeLinecap="round"
+      >
+        <animateTransform
+          attributeName="transform"
+          type="rotate"
+          from="0 12 12"
+          to="360 12 12"
+          dur="0.8s"
+          repeatCount="indefinite"
+        />
+      </path>
+    </svg>
+  );
+}
+
+function Select({
+  label,
+  value,
+  onChange,
+  options,
+  placeholder = "選択してください",
+}: {
+  label: string;
+  value: string;
+  onChange: (e: InputChange) => void;
+  options: { value: string; label: string }[];
+  placeholder?: string;
+}) {
+  const [focus, setFocus] = useState(false);
+
+  return (
+    <label style={{ display: "grid", gap: 6 }}>
+      <span style={labelStyle}>{label}</span>
+
+      <select
+        value={value ?? ""}
+        onChange={onChange}
+        style={{
+          ...input,
+          ...(focus ? inputFocus : {}),
+          appearance: "none",
+          WebkitAppearance: "none",
+          backgroundImage:
+            "linear-gradient(45deg, transparent 50%, rgba(15,23,42,0.55) 50%)," +
+            "linear-gradient(135deg, rgba(15,23,42,0.55) 50%, transparent 50%)",
+          backgroundPosition: "calc(100% - 18px) 55%, calc(100% - 12px) 55%",
+          backgroundSize: "6px 6px, 6px 6px",
+          backgroundRepeat: "no-repeat",
+          paddingRight: 36,
+          cursor: "pointer",
+        }}
+        onFocus={() => setFocus(true)}
+        onBlur={() => setFocus(false)}
+      >
+        <option value="" disabled>
+          {placeholder}
+        </option>
+
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
 
 /* ===== styles ===== */
 
@@ -213,7 +422,7 @@ const input: React.CSSProperties = {
   borderRadius: 14,
   border: `1px solid ${theme.border}`,
   background: "rgba(255,255,255,0.96)",
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: 750,
   color: theme.text,
   outline: "none",
@@ -221,14 +430,27 @@ const input: React.CSSProperties = {
 };
 
 const inputFocus: React.CSSProperties = {
-  borderColor: "rgba(29,78,137,0.55)", // ✅ 青
-  boxShadow: "0 0 0 4px rgba(29,78,137,0.18)", // ✅ 青リング（混色なし）
+  borderColor: "rgba(29,78,137,0.55)",
+  boxShadow: "0 0 0 4px rgba(29,78,137,0.18)",
 };
 
 const actions: React.CSSProperties = {
   display: "flex",
   gap: 10,
   marginTop: 16,
+};
+
+const btnInner: React.CSSProperties = {
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 8,
+};
+
+const btnDisabled: React.CSSProperties = {
+  opacity: 0.6,
+  cursor: "not-allowed",
+  filter: "grayscale(0.1)",
 };
 
 const deleteBtn: React.CSSProperties = {
@@ -245,7 +467,7 @@ const deleteBtn: React.CSSProperties = {
 
 const saveBtn: React.CSSProperties = {
   flex: 1,
-  background: theme.primary, // ✅ 青
+  background: theme.primary,
   color: "white",
   border: "none",
   padding: 12,

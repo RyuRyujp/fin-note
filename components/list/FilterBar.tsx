@@ -100,40 +100,45 @@ export default function FilterBar({
       <div style={moreWrap(openMore)}>
 
         <div style={moreGrid}>
-          <Field label="名前・内容検索">
-            {keyword.trim() ? (
+          <Field
+            label="名前・内容検索"
+            action={
               <button
                 type="button"
                 onClick={() => setKeyword("")}
-                style={clearMiniBtn}
+                style={{ ...clearMiniBtn, marginTop: 0 }}
                 aria-label="検索キーワードをクリア"
+                disabled={!keyword.trim()}
               >
                 クリア
               </button>
-            ) : null}
+            }
+          >
             <InputShell>
               <input
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
-                placeholder="例）スタバ "
+                placeholder="例）スタバ"
                 style={input}
               />
             </InputShell>
-
-
           </Field>
 
-          <Field label="支払方法">
-            {payment ? (
+
+          <Field
+            label="支払方法"
+            action={
               <button
                 type="button"
                 onClick={() => setPayment("")}
-                style={clearMiniBtn}
+                style={{ ...clearMiniBtn, marginTop: 0 }}
                 aria-label="支払方法をクリア"
+                disabled={!payment}
               >
                 クリア
               </button>
-            ) : null}
+            }
+          >
             <SelectShell>
               <select value={payment} onChange={(e) => setPayment(e.target.value)} style={select}>
                 <option value="">全て</option>
@@ -149,6 +154,7 @@ export default function FilterBar({
               </select>
             </SelectShell>
           </Field>
+
         </div>
       </div>
     </div>
@@ -157,12 +163,23 @@ export default function FilterBar({
 
 /* ===== 小コンポーネント ===== */
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({
+  label,
+  action,
+  children,
+}: {
+  label: string;
+  action?: React.ReactNode;
+  children: React.ReactNode;
+}) {
   return (
     <div style={{ display: "grid", gap: 6 }}>
-      <div style={labelStyle}>
-        <span style={labelDot} />
-        <span>{label}</span>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div style={labelStyle}>
+          <span style={labelDot} />
+          <span>{label}</span>
+        </div>
+        {action}
       </div>
       {children}
     </div>

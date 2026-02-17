@@ -451,8 +451,17 @@ function extractId(payload: unknown): string | null {
 }
 
 // "yyyy-MM-dd" -> "yyyy/MM/dd" に統一（Listの startsWith 対策）
-function normalizeSlashDate(date: string): string {
-    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date);
-    if (!m) return date;
-    return `${m[1]}/${m[2]}/${m[3]}`;
+export function normalizeSlashDate(date: string): string {
+  if (!date) return "";
+
+  // "2026-02-17T..." みたいなのが来ても先頭10文字だけ使う
+  const head = date.includes("T") ? date.slice(0, 10) : date;
+
+  const m = head.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
+  if (!m) return date;
+
+  const y = m[1];
+  const mm = m[2].padStart(2, "0");
+  const dd = m[3].padStart(2, "0");
+  return `${y}/${mm}/${dd}`;
 }

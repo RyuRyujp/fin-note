@@ -31,6 +31,13 @@ const rightTabs: Tab[] = [
     { href: "/income", label: "収入", Icon: Wallet },
 ];
 
+function ymd(d: Date) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`; 
+}
+
 /* ===============================
    TabBar
 ================================ */
@@ -44,8 +51,6 @@ export default function TabBar() {
         return "expense";
     }, [pathname]);
 
-    const todayISO = new Date().toISOString().slice(0, 10);
-
     /* ===== Sheet状態 ===== */
     const [open, setOpen] = useState(false);
     const { addExpense, addIncome, addSubscription } = useExpenseStore();
@@ -54,7 +59,7 @@ export default function TabBar() {
     /* ===============================
        支出（expense）
     ================================ */
-    const [exDate, setExDate] = useState(todayISO);
+    const [exDate, setExDate] = useState<string>(() => ymd(new Date()));
     const [exDetail, setExDetail] = useState("");
     const [exAmount, setExAmount] = useState("");
     const [exCategory, setExCategory] = useState("食費");
@@ -75,17 +80,16 @@ export default function TabBar() {
     /* ===============================
        収入（income）
     ================================ */
-    const [inDate, setInDate] = useState(todayISO);
+    const [inDate, setInDate] = useState<string>(() => ymd(new Date()));
     const [inDetail, setInDetail] = useState("");
     const [inAmount, setInAmount] = useState("");
     const [inCategory, setInCategory] = useState("給与");
 
     function openSheet() {
-        // 開いた瞬間に「そのモードの初期値」に寄せたい場合はここで整える
         if (mode === "expense") {
-            setExDate(todayISO);
+            setExDate(exDate);
         } else if (mode === "income") {
-            setInDate(todayISO);
+            setInDate(inDate);
         }
         setOpen(true);
     }
@@ -128,6 +132,7 @@ export default function TabBar() {
     /* ===== 保存処理（モードで分岐）===== */
     async function submit() {
         if (saving) return;
+        closeSheet();
 
         setSaving(true);
         try {
@@ -165,9 +170,8 @@ export default function TabBar() {
                 });
             }
 
-            closeSheet();
             resetAfterSave();
-            dispatchUpdatedEvent(); // 既存の仕組みがあるなら残してOK（不要なら削除可）
+            dispatchUpdatedEvent(); 
         } catch (e) {
             console.error(e);
         } finally {
@@ -353,6 +357,7 @@ function ExpenseForm({
                     <option>生活費</option>
                     <option>交通費</option>
                     <option>日用品</option>
+                    <option>雑貨</option>
                     <option>娯楽・趣味</option>
                     <option>未分類</option>
                 </select>
