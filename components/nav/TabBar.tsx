@@ -422,8 +422,6 @@ function SubscriptionForm({
     setPayment,
     done,
     setdone,
-    memo,
-    setMemo,
     onSubmit,
     saving,
     onClose,

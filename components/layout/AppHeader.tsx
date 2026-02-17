@@ -169,6 +169,6 @@ const menuBtnPressed: React.CSSProperties = {
 const menuIcon: React.CSSProperties = {
   fontSize: 18,
   fontWeight: 900,
-  color: theme.primary, // ✅ 青
+  color: theme.primary, 
   lineHeight: 1,
 };

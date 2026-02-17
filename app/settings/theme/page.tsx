@@ -46,8 +46,8 @@ export default function ThemeSettingsPage() {
                   key={k}
                   type="button"
                   onClick={() => {
-                    setTheme(k);      // ✅ 即反映
-                    setCurrent(k);    // ✅ 表示更新
+                    setTheme(k);      
+                    setCurrent(k);   
                   }}
                   style={{
                     ...themeOption,

@@ -14,6 +14,7 @@ import CategoryBreakdown from "@/components/dashboard/CategoryBreakdown";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
 import TabBar from "@/components/nav/TabBar";
+import { theme } from "@/lib/theme";
 
 /* ===============================
    型定義
@@ -240,8 +241,8 @@ function RefreshButton({
             disabled={loading}
             style={{
                 border: "none",
-                background: loading ? "rgba(148,163,184,0.25)" : "rgba(37,99,235,0.12)",
-                color: loading ? "#64748b" : "#2563eb",
+                background: loading ? "rgba(148,163,184,0.25)" : theme.primary,
+                color: loading ? "#64748b" : theme.accent,
                 padding: "8px 14px",
                 borderRadius: 999,
                 fontWeight: 700,
