@@ -49,11 +49,6 @@ type LoadOptions = {
 type AddExpenseInput = Omit<Expense, "id">;
 type AddIncomeInput = Omit<Income, "id">;
 
-type AddExpenseResponse =
-    | { ok: true; expense: Expense }
-    | { ok: true; recordId: string }
-    | { ok: false; error?: string };
-
 type AddSubscriptionInput = {
     day: number;
     detail: string;
