@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
-import TabBar from "@/components/nav/TabBar";
+import TabBar from "@/components/nav/TabBar/Index";
 import { theme } from "@/lib/theme";
 
 type Category = {

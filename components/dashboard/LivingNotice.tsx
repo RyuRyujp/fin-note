@@ -19,29 +19,17 @@ function clampDueDay(year: number, monthIndex: number, day: number): number {
     return Math.min(d, lastDay);
 }
 
-function formatYMDSlash(d: Date): string {
-    const y = d.getFullYear();
-    const m = String(d.getMonth() + 1).padStart(2, "0");
-    const day = String(d.getDate()).padStart(2, "0");
-    return `${y}/${m}/${day}`;
-}
-
 function normalizeDone(s: string): string {
     return (s || "").trim().replace(/[ \u3000]/g, "").toLowerCase();
 }
 
-/**
- * Done を見て「今月済」なら true
- * - 例: "2026/02済", "2026-02 済", "2026年2月済", "2月済", "今月済"
- */
 function isDoneThisMonth(doneRaw: string, year: number, monthIndex: number): boolean {
     const s = normalizeDone(doneRaw);
     if (!s) return false;
 
-    const hasSumi = s.includes("済") || s.includes("done");
-    if (!hasSumi) return false;
+    const hasDone = s.includes("済") || s.includes("done");
+    if (!hasDone) return false;
 
-    // 「今月済」も許容
     if (s.includes("今月")) return true;
 
     const mm = String(monthIndex + 1).padStart(2, "0");

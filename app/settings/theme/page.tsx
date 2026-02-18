@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
-import TabBar from "@/components/nav/TabBar";
+import TabBar from "@/components/nav/TabBar/Index";
 import { theme, THEME_PRESETS, type ThemeName, getStoredTheme, setTheme } from "@/lib/theme";
 
 const THEME_LABELS: Record<ThemeName, string> = {

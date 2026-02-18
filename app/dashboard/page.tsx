@@ -13,8 +13,8 @@ import LivingNotice from "@/components/dashboard/LivingNotice";
 import CategoryBreakdown from "@/components/dashboard/CategoryBreakdown";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
-import TabBar from "@/components/nav/TabBar";
-import { theme } from "@/lib/theme";
+import { RefreshButton, RefreshOverlay, CenterSpinner  } from "@/components/layout/RefreshFeedback";
+import TabBar from "@/components/nav/TabBar/Index";
 
 /* ===============================
    型定義
@@ -24,7 +24,6 @@ type Mode = "category" | "daily" | "pie" | "monthly";
 /* ===============================
    Utils
 ================================ */
-// "yyyy/MM/dd" や "yyyy-MM-dd" を安全に Date にする（new Date("yyyy/MM/dd") は環境で壊れることがある）
 function parseJPDate(dateStr: string): Date | null {
     const parts = dateStr.split(/[\/\-]/).map((v) => Number(v));
     if (parts.length < 3) return null;
@@ -43,6 +42,7 @@ function parseJPDate(dateStr: string): Date | null {
 ================================ */
 export default function DashboardPage() {
     const { expenses, loadExpenses, loading, livingExpenses } = useExpenseStore();
+    const [refreshing, setRefreshing] = useState(false);
 
     const [mode, setMode] = useState<Mode>("daily");
     const [menuOpen, setMenuOpen] = useState(false);
@@ -57,14 +57,20 @@ export default function DashboardPage() {
         loadExpenses();
     }, [loadExpenses]);
 
+
     async function handleRefresh() {
-        await loadExpenses({ force: true });
+        setRefreshing(true);
+        try {
+            await loadExpenses({ force: true }); 
+        } finally {
+            setRefreshing(false);
+        }
     }
 
     /* ===== 今月判定 ===== */
     const now = new Date();
     const y = now.getFullYear();
-    const m = now.getMonth(); 
+    const m = now.getMonth();
 
     const dateLabel = `今日：${now.toLocaleDateString("ja-JP")}`;
     const monthLabel = `${y}年${m + 1}月`;
@@ -86,7 +92,7 @@ export default function DashboardPage() {
         return monthlyExpenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
     }, [monthlyExpenses]);
 
-    /* ===== 裏面用：詳細データ（6枠） ===== */
+    /* ===== 裏面用：詳細データ ===== */
     const monthlyDetails = useMemo(() => {
         const yen = (n: number) => `¥${Math.round(n).toLocaleString()}`;
         const todayDate = now.getDate();
@@ -94,21 +100,8 @@ export default function DashboardPage() {
         const total = expenseTotal;
         const count = monthlyExpenses.length;
 
-        // 1日平均（今月の今日まで）
         const avgPerDay = total / Math.max(1, todayDate);
 
-        // 最高支出日（日別合計の最大）
-        const byDay = new Map<string, number>();
-        for (const e of monthlyExpenses) {
-            const d = parseJPDate(e.date);
-            if (!d) continue;
-            const key = `${d.getFullYear()}/${String(d.getMonth() + 1).padStart(2, "0")}/${String(
-                d.getDate()
-            ).padStart(2, "0")}`;
-            byDay.set(key, (byDay.get(key) || 0) + (Number(e.amount) || 0));
-        }
-
-        // Topカテゴリ
         const byCat = new Map<string, number>();
         for (const e of monthlyExpenses) {
             const c = e.category || "未分類";
@@ -124,9 +117,8 @@ export default function DashboardPage() {
         }
         const topCatText = topCatAmount ? `${topCat} ${yen(topCatAmount)}` : "—";
 
-        // 前月比
         let py = y;
-        let pm = m - 1; // m は 0-based
+        let pm = m - 1;
         if (pm < 0) {
             pm = 11;
             py = y - 1;
@@ -154,6 +146,8 @@ export default function DashboardPage() {
         ];
     }, [expenses, monthlyExpenses, expenseTotal, y, m, now]);
 
+    const isBusy = loading || refreshing;
+
     return (
         <>
             {/* ===== Header ===== */}
@@ -161,14 +155,17 @@ export default function DashboardPage() {
                 title="Fin Note"
                 subtitle="ホーム"
                 onMenu={() => setMenuOpen(true)}
-                right={<RefreshButton onClick={handleRefresh} loading={loading} />}
+                right={<RefreshButton onClick={handleRefresh} loading={isBusy} />}
             />
 
             {/* ===== SideMenu ===== */}
             <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
+            <RefreshOverlay open={refreshing} />
+
             {/* ===== Main ===== */}
             <div
+                aria-busy={isBusy}
                 style={{
                     minHeight: "100vh",
                     background:
@@ -183,10 +180,8 @@ export default function DashboardPage() {
                         padding: "20px 18px 110px",
                     }}
                 >
-
                     <LivingNotice livingExpenses={livingExpenses} />
 
-                    {/* 月合計カード */}
                     <MonthlyTotalCard
                         amount={expenseTotal}
                         dateLabel={dateLabel}
@@ -194,12 +189,10 @@ export default function DashboardPage() {
                         details={monthlyDetails}
                     />
 
-                    {/* セグメント */}
                     <div style={{ marginTop: 18 }}>
                         <HomeSegment value={mode} onChange={setMode} />
                     </div>
 
-                    {/* コンテンツ */}
                     <div style={{ marginTop: 14 }}>
                         {loading ? (
                             <CenterSpinner />
@@ -221,69 +214,5 @@ export default function DashboardPage() {
             {/* ===== TabBar ===== */}
             <TabBar />
         </>
-    );
-}
-
-/* ===============================
-   Refresh Button
-================================ */
-function RefreshButton({
-    onClick,
-    loading,
-}: {
-    onClick: () => Promise<void>;
-    loading: boolean;
-}) {
-    return (
-        <button
-            type="button"
-            onClick={() => onClick()}
-            disabled={loading}
-            style={{
-                border: "none",
-                background: loading ? "rgba(148,163,184,0.25)" : theme.primary,
-                color: loading ? "#64748b" : theme.accent,
-                padding: "8px 14px",
-                borderRadius: 999,
-                fontWeight: 700,
-                fontSize: 13,
-                cursor: loading ? "not-allowed" : "pointer",
-                opacity: loading ? 0.85 : 1,
-            }}
-        >
-            {loading ? "更新中…" : "更新"}
-        </button>
-    );
-}
-
-/* ===============================
-   Spinner
-================================ */
-function CenterSpinner() {
-    return (
-        <div
-            style={{
-                height: 220,
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-            }}
-        >
-            <div
-                style={{
-                    width: 36,
-                    height: 36,
-                    borderRadius: "50%",
-                    border: "3px solid #e5e7eb",
-                    borderTop: "3px solid #3b82f6",
-                    animation: "spin 0.9s linear infinite",
-                }}
-            />
-            <style>{`
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-      `}</style>
-        </div>
     );
 }

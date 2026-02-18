@@ -63,10 +63,17 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
   for (let i = 0; i < startWeek; i++) days.push(null);
   for (let d = 1; d <= lastDay; d++) days.push(d);
 
-  // ✅ 末尾も埋めて、カレンダーの外枠・はみ出し感を出さない
+  
   while (days.length % 7 !== 0) days.push(null);
 
   const monthLabel = `${y}年${m + 1}月`;
+
+  function formatYenMax5Digits(v: number): string {
+    const n = Math.abs(Math.trunc(v)); 
+    if (n <= 99999) return `${n.toLocaleString()}`; 
+    const s = String(n);
+    return `${s.slice(0, 5)}…`; 
+  }
 
   return (
     <div style={{ marginTop: 12 }}>
@@ -109,8 +116,8 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
                   idx === 0
                     ? "rgba(239,68,68,0.85)"
                     : idx === 6
-                    ? "rgba(59,130,246,0.85)"
-                    : theme.subtext,
+                      ? "rgba(59,130,246,0.85)"
+                      : theme.subtext,
                 fontWeight: 800,
               }}
             >
@@ -122,7 +129,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
         {/* 日付 */}
         <div style={grid}>
           {days.map((d, i) => {
-            // ✅ 該当月以外（空白）は完全に見えないセルにする（枠/影なし）
+            
             if (!d) return <div key={i} style={blankCell} aria-hidden />;
 
             const key = `${y}/${String(m + 1).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
@@ -132,8 +139,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
             const isToday = key === todayKey;
             const isActive = key === activeDate;
 
-            // ✅ 金額行の高さは常に確保（表示だけ切替）→ 幅/高さが揃う
-            const amountText = hasTotal ? `¥${Math.abs(total!).toLocaleString()}` : "¥0";
+            const amountText = hasTotal ? formatYenMax5Digits(total!) : "¥0";
 
             return (
               <button
@@ -274,14 +280,16 @@ const navBtn: React.CSSProperties = {
 
 const calendarCard: React.CSSProperties = {
   position: "relative",
+  boxSizing: "border-box",
+  width: "100%",
+  minWidth: 0,
   background: theme.surface,
   backdropFilter: "blur(14px)",
   borderRadius: 20,
-  padding: 14,
+  padding: 8,
   border: `1px solid ${theme.border}`,
   boxShadow: "0 14px 30px rgba(2,6,23,0.08)",
   overflow: "hidden",
-  // ✅ 影や枠が“はみ出て見える”対策（より強くクリップ）
   clipPath: "inset(0 round 20px)",
   WebkitClipPath: "inset(0 round 20px)",
   isolation: "isolate",
@@ -300,7 +308,7 @@ const goldLine: React.CSSProperties = {
 
 const weekRow: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(7,1fr)",
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))", 
   marginBottom: 10,
   fontSize: 12,
   textAlign: "center",
@@ -308,14 +316,12 @@ const weekRow: React.CSSProperties = {
 
 const grid: React.CSSProperties = {
   display: "grid",
-  gridTemplateColumns: "repeat(7,1fr)",
-  gap: 8,
-  // ✅ 行の高さも揃える（中身の有無でガタつかない）
-  gridAutoRows: 66,
+  gridTemplateColumns: "repeat(7, minmax(0, 1fr))", 
+  gap: "clamp(6px, 1.8vw, 10px)",                  
+  gridAutoRows: "clamp(58px, 10.5vw, 72px)",       
 };
 
 const blankCell: React.CSSProperties = {
-  // ✅ 完全に“何もない”空白（枠/影/背景なし）
   background: "transparent",
   border: "none",
   boxShadow: "none",
@@ -323,13 +329,18 @@ const blankCell: React.CSSProperties = {
 
 const dayBtn: React.CSSProperties = {
   position: "relative",
+  boxSizing: "border-box",
+  minWidth: 0, 
+  WebkitAppearance: "none",
+  appearance: "none",
   border: `1px solid rgba(15,23,42,0.08)`,
   background: theme.surface,
   borderRadius: 14,
-  padding: "8px 6px",
-  height: "100%", // ✅ gridAutoRows に合わせて固定
+  padding: "8px 4px",
+  height: "100%",
   width: "100%",
   cursor: "pointer",
+  touchAction: "manipulation", 
   transition: "transform .12s ease, box-shadow .18s ease, border-color .18s ease",
   boxShadow: "0 6px 14px rgba(2,6,23,0.05)",
   display: "flex",
@@ -338,13 +349,13 @@ const dayBtn: React.CSSProperties = {
 };
 
 const dayBtnActive: React.CSSProperties = {
-  background: theme.primary, // ✅ 青だけ
+  background: theme.primary, 
   borderColor: "rgba(255,255,255,0.18)",
   boxShadow: "0 16px 28px rgba(2,6,23,0.22)",
 };
 
 const dayBtnTodayRing: React.CSSProperties = {
-  borderColor: "rgba(214,181,138,0.65)", // ✅ 金リング（混色なし）
+  borderColor: "rgba(214,181,138,0.65)", 
   boxShadow: "0 12px 22px rgba(2,6,23,0.10)",
 };
 
@@ -352,8 +363,16 @@ const amountRow: React.CSSProperties = {
   fontSize: 10,
   marginTop: 3,
   fontWeight: 800,
-  height: 14, // ✅ 金額あり/なしで高さ固定
+  height: 14,
   lineHeight: "14px",
+
+  width: "100%",
+  minWidth: 0,
+  textAlign: "center",
+  whiteSpace: "nowrap",
+  overflow: "hidden",
+  textOverflow: "ellipsis",
+  fontVariantNumeric: "tabular-nums",
 };
 
 const activeGoldBar: React.CSSProperties = {
@@ -363,7 +382,7 @@ const activeGoldBar: React.CSSProperties = {
   bottom: 7,
   height: 3,
   borderRadius: 999,
-  background: theme.accent, // ✅ 金だけ
+  background: theme.accent, 
   opacity: 0.95,
 };
 
@@ -378,7 +397,7 @@ const dateLabelText: React.CSSProperties = {
   fontSize: 12.5,
   fontWeight: 900,
   letterSpacing: 0.2,
-  color: theme.accent, // ✅ 金
+  color: theme.accent, 
 };
 
 const dateLabelDot: React.CSSProperties = {
@@ -395,7 +414,7 @@ const listCard: React.CSSProperties = {
   backdropFilter: "blur(14px)",
   borderRadius: 18,
   padding: 8,
-  border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
+  border: `1px solid rgba(29,78,137,0.12)`, 
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
   overflow: "hidden",
 };

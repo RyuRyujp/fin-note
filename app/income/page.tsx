@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { useExpenseStore } from "@/lib/store/expenseStore";
 import AppHeader from "@/components/layout/AppHeader";
 import SideMenu from "@/components/layout/SideMenu";
-import TabBar from "@/components/nav/TabBar";
+import TabBar from "@/components/nav/TabBar/Index";
 import { CategoryIcon } from "@/components/layout/CategoryIcon";
 import { theme } from "@/lib/theme";
 

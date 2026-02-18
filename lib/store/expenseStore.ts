@@ -20,17 +20,19 @@ export type Income = {
 
 export type FixedExpense = {
     id: string;
+    day: number;
     detail: string;
     amount: number;
-    day: number;
     category: string;
+    payment: string;
+    done: string;
 };
 
 export type LivingExpense = {
     id: string;
     detail: string;
-    amount: number;
     day: number;
+    amount: number;
     category: string;
     payment: string;
     done: string;
@@ -71,6 +73,10 @@ type State = {
     addIncome: (input: AddIncomeInput) => Promise<void>;
     addSubscription: (input: AddSubscriptionInput) => Promise<void>;
 
+    updateFixedExpense: (e: FixedExpense) => Promise<void>;
+    deleteFixedExpense: (id: string) => Promise<void>;
+    updateLivingExpense: (e: LivingExpense) => Promise<void>;
+    deleteLivingExpense: (id: string) => Promise<void>;
 
     incomes: Income[];
     fixedExpenses: FixedExpense[];
@@ -285,9 +291,12 @@ export const useExpenseStore = create<State>((set, get) => ({
 
     addSubscription: async (input) => {
         const makeTmpId = (): string => `tmp_${Date.now()}_${Math.random().toString(16).slice(2)}`;
+
+        // ✅ done(boolean) → done(string) に変換
         const monthDone = input.done ? `${new Date().getMonth() + 1}月済` : "";
 
-        const optimistic: LivingExpense = {
+        // ✅ FixedExpense に合わせる
+        const optimistic: FixedExpense = {
             id: makeTmpId(),
             day: input.day,
             detail: input.detail,
@@ -295,18 +304,18 @@ export const useExpenseStore = create<State>((set, get) => ({
             category: input.category,
             payment: input.payment,
             done: monthDone,
-            memo: input.memo,
         };
 
-        // ✅ 1) 先にUIへ反映
+        // ✅ 1) 先に fixedExpenses へ反映
         set((state) => {
-            const nextLiving = [optimistic, ...state.livingExpenses];
-            const next = { ...state, livingExpenses: nextLiving };
+            const nextFixed = [optimistic, ...state.fixedExpenses];
+            const next = { ...state, fixedExpenses: nextFixed };
             writeCache(next);
-            return { livingExpenses: nextLiving };
+            return { fixedExpenses: nextFixed };
         });
 
         try {
+            // ✅ 2) 永続化
             const res = await fetch("/api/add-subscription", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -318,29 +327,94 @@ export const useExpenseStore = create<State>((set, get) => ({
                 throw new Error("add-subscription failed");
             }
 
+            // ✅ 3) ID差し替え（fixedExpenses を対象にする）
             const newId = extractId(payload);
             if (newId) {
                 set((state) => {
-                    const nextLiving = state.livingExpenses.map((x) =>
+                    const nextFixed = state.fixedExpenses.map((x) =>
                         x.id === optimistic.id ? { ...x, id: newId } : x
                     );
-                    const next = { ...state, livingExpenses: nextLiving };
+                    const next = { ...state, fixedExpenses: nextFixed };
                     writeCache(next);
-                    return { livingExpenses: nextLiving };
+                    return { fixedExpenses: nextFixed };
                 });
             } else {
                 void get().loadExpenses({ force: true });
             }
         } catch (e) {
+            // ❌ 失敗なら fixedExpenses をロールバック
             set((state) => {
-                const nextLiving = state.livingExpenses.filter((x) => x.id !== optimistic.id);
-                const next = { ...state, livingExpenses: nextLiving };
+                const nextFixed = state.fixedExpenses.filter((x) => x.id !== optimistic.id);
+                const next = { ...state, fixedExpenses: nextFixed };
                 writeCache(next);
-                return { livingExpenses: nextLiving };
+                return { fixedExpenses: nextFixed };
             });
             throw e;
         }
     },
+
+
+    updateFixedExpense: async (fixed) => {
+        // done は string 型（"2月済" など）なのでそのまま送る
+        await fetch("/api/update-fixed-expense", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(fixed),
+        });
+
+        set((state) => {
+            const nextFixed = state.fixedExpenses.map((x) => (x.id === fixed.id ? fixed : x));
+            const next = { ...state, fixedExpenses: nextFixed };
+            writeCache(next);
+            return { fixedExpenses: nextFixed };
+        });
+    },
+
+    deleteFixedExpense: async (id) => {
+        await fetch("/api/delete-fixed-expense", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recordId: id }),
+        });
+
+        set((state) => {
+            const nextFixed = state.fixedExpenses.filter((x) => x.id !== id);
+            const next = { ...state, fixedExpenses: nextFixed };
+            writeCache(next);
+            return { fixedExpenses: nextFixed };
+        });
+    },
+
+    updateLivingExpense: async (living) => {
+        await fetch("/api/update-living-expense", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(living),
+        });
+
+        set((state) => {
+            const nextLiving = state.livingExpenses.map((x) => (x.id === living.id ? living : x));
+            const next = { ...state, livingExpenses: nextLiving };
+            writeCache(next);
+            return { livingExpenses: nextLiving };
+        });
+    },
+
+    deleteLivingExpense: async (id) => {
+        await fetch("/api/delete-living-expense", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ recordId: id }),
+        });
+
+        set((state) => {
+            const nextLiving = state.livingExpenses.filter((x) => x.id !== id);
+            const next = { ...state, livingExpenses: nextLiving };
+            writeCache(next);
+            return { livingExpenses: nextLiving };
+        });
+    },
+
 
 
     loadExpenses: async (opts) => {
@@ -447,16 +521,16 @@ function extractId(payload: unknown): string | null {
 
 // "yyyy-MM-dd" -> "yyyy/MM/dd" に統一（Listの startsWith 対策）
 export function normalizeSlashDate(date: string): string {
-  if (!date) return "";
+    if (!date) return "";
 
-  // "2026-02-17T..." みたいなのが来ても先頭10文字だけ使う
-  const head = date.includes("T") ? date.slice(0, 10) : date;
+    // "2026-02-17T..." みたいなのが来ても先頭10文字だけ使う
+    const head = date.includes("T") ? date.slice(0, 10) : date;
 
-  const m = head.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
-  if (!m) return date;
+    const m = head.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})$/);
+    if (!m) return date;
 
-  const y = m[1];
-  const mm = m[2].padStart(2, "0");
-  const dd = m[3].padStart(2, "0");
-  return `${y}/${mm}/${dd}`;
+    const y = m[1];
+    const mm = m[2].padStart(2, "0");
+    const dd = m[3].padStart(2, "0");
+    return `${y}/${mm}/${dd}`;
 }
