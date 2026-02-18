@@ -371,7 +371,7 @@ export const useExpenseStore = create<State>((set, get) => ({
     },
 
     deleteFixedExpense: async (id) => {
-        await fetch("/api/delete-fixed-expense", {
+        await fetch("/api/delete-expense", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ recordId: id }),
@@ -401,7 +401,7 @@ export const useExpenseStore = create<State>((set, get) => ({
     },
 
     deleteLivingExpense: async (id) => {
-        await fetch("/api/delete-living-expense", {
+        await fetch("/api/delete-expense", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ recordId: id }),
