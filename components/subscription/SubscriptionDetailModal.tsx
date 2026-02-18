@@ -50,8 +50,9 @@ export default function SubscriptionDetailModal({ selected, onClose }: Props) {
   const busy = saving || deleting;
 
   // ✅ done(string) ⇄ done(boolean) の変換
-  const doneStrToBool = (s: string) => !!String(s ?? "").trim();
-  const boolToDoneStr = (b: boolean) => (b ? "今月済" : ""); // 好きなラベルに変えてOK
+  const thisMonthDoneStr = () => `${new Date().getMonth() + 1}月済`;
+  const doneStrToBool = (s: string) => String(s ?? "").trim() === thisMonthDoneStr();
+  const boolToDoneStr = (b: boolean) => (b ? thisMonthDoneStr() : "");
 
   useEffect(() => {
     if (!selected) return;

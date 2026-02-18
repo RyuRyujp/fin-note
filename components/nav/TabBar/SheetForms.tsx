@@ -14,6 +14,11 @@ const PAYMENT_OPTIONS = [
   "その他",
 ] as const;
 
+function thisMonthDoneLabel() {
+  const m = new Date().getMonth() + 1; // 1-12
+  return `${m}月済`;
+}
+
 /* ===============================
    Expense
 ================================ */
@@ -133,13 +138,12 @@ export function FixedExpenseForm({
   setPayment,
   done,
   setDone,
-  memo,
-  setMemo,
   onSubmit,
   saving,
   onClose,
 }: FixedExpenseFormProps) {
   const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
+  const doneLabel = thisMonthDoneLabel();
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -180,12 +184,8 @@ export function FixedExpenseForm({
         </select>
       </Field>
 
-      <Field label="今月済">
+      <Field label={doneLabel}>
         <DoneToggle done={done} onToggle={() => setDone(!done)} />
-      </Field>
-
-      <Field label="メモ">
-        <textarea value={memo} onChange={(e) => setMemo(e.target.value)} rows={3} style={{ ...input, resize: "none" }} />
       </Field>
 
       <FormButtons onClose={onClose} onSubmit={onSubmit} saving={saving} />
@@ -234,6 +234,7 @@ export function LivingExpenseForm({
   onClose,
 }: LivingExpenseFormProps) {
   const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
+  const doneLabel = thisMonthDoneLabel();
 
   return (
     <div style={{ display: "grid", gap: 18 }}>
@@ -271,7 +272,7 @@ export function LivingExpenseForm({
         </select>
       </Field>
 
-      <Field label="今月済">
+      <Field label={doneLabel}>
         <DoneToggle done={done} onToggle={() => setDone(!done)} />
       </Field>
 
