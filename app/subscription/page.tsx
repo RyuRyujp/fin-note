@@ -84,7 +84,22 @@ export default function SubscriptionsPage() {
       <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
 
       <div style={pageWrap}>
-        <div style={subWrap}>
+        <div
+          style={{
+            ...subWrap,
+            position: "fixed",
+            top: 80,
+            left: 0,
+            right: 0,
+            zIndex: 50,
+            background: theme.background,        
+            paddingTop: 8,               
+            paddingBottom: 10,           
+            marginTop: 0,
+            marginRight: 10,
+            marginLeft: 10,                
+          }}
+        >
           <div style={goldTopLine} />
 
           <div style={indicatorRail}>
@@ -108,7 +123,7 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* ===== 合計カード ===== */}
-        <div style={{ ...totalCard, marginTop: 14 }}>
+        <div style={{ ...totalCard, marginTop: 70 }}>
           <div style={goldLine} />
 
           <div style={totalTopRow}>
@@ -136,19 +151,19 @@ export default function SubscriptionsPage() {
         <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
           {isFixed
             ? fixedExpenses.map((e) => (
-                <SubRowForFixedExpense
-                  key={e.id}
-                  item={e}
-                  onOpen={(item) => setSelectedSub({ kind: "fixed", item })}
-                />
-              ))
+              <SubRowForFixedExpense
+                key={e.id}
+                item={e}
+                onOpen={(item) => setSelectedSub({ kind: "fixed", item })}
+              />
+            ))
             : livingExpenses.map((e) => (
-                <SubRowForLivingExpense
-                  key={e.id}
-                  item={e}
-                  onOpen={(item) => setSelectedSub({ kind: "living", item })}
-                />
-              ))}
+              <SubRowForLivingExpense
+                key={e.id}
+                item={e}
+                onOpen={(item) => setSelectedSub({ kind: "living", item })}
+              />
+            ))}
         </div>
       </div>
 
