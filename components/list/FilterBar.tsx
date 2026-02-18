@@ -71,6 +71,7 @@ export default function FilterBar({
             <option>交通費</option>
             <option>日用品</option>
             <option>娯楽・趣味</option>
+            <option>雑貨</option>
             <option>その他</option>
           </select>
         </SelectShell>
