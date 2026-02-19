@@ -148,7 +148,7 @@ export default function ListPageClient() {
                     paddingTop: 76,
                     paddingLeft: 16,
                     paddingRight: 16,
-                    paddingBottom: 90,
+                    paddingBottom: 150,
                 }}
             >
 

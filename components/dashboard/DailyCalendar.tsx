@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { CategoryIcon } from "../layout/CategoryIcon";
 import { useExpenseStore, type Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
@@ -28,6 +28,7 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
   )}/${String(today.getDate()).padStart(2, "0")}`;
 
   const [activeDate, setActiveDate] = useState<string>(todayKey);
+  const [activeTotal, setActivateDateTotal] = useState<number>(0);
 
   /* ===== カレンダー計算 ===== */
   const firstDay = new Date(y, m, 1);
@@ -54,6 +55,16 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
     });
     return map;
   }, [monthlyExpenses]);
+
+  const activeTotalNum = useMemo(() => totals[activeDate] ?? 0, [totals, activeDate]);
+
+  const activeTotalText = useMemo(() => {
+    if (!activeTotalNum) return "¥0";
+    // カレンダーと同じ「5桁 + …」表示にしたいなら:
+    return `¥${formatYenMax5Digits(activeTotalNum)}`;
+    // フル桁で出したいなら:
+    // return `¥${activeTotalNum.toLocaleString()}`;
+  }, [activeTotalNum]);
 
   /* ===== アクティブ日の支出 ===== */
   const dailyExpenses = useMemo(
@@ -153,13 +164,13 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
             if (!d) return <div key={i} style={blankCell} aria-hidden />;
 
             const key = `${y}/${String(m + 1).padStart(2, "0")}/${String(d).padStart(2, "0")}`;
-            const total = totals[key];
-            const hasTotal = typeof total === "number" && total !== 0;
 
             const isToday = key === todayKey;
             const isActive = key === activeDate;
+            const totalNum = totals[key] ?? 0;
+            const hasTotal = totalNum !== 0;
 
-            const amountText = hasTotal ? formatYenMax5Digits(total!) : "¥0";
+            const amountText = hasTotal ? `¥${formatYenMax5Digits(totalNum)}` : "¥0";
 
             return (
               <button
@@ -204,7 +215,12 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
 
       {/* ================= 日別リスト ================= */}
       <div style={{ marginTop: 16 }}>
-        <DaySection date={activeDate} expenses={dailyExpenses} onTapExpense={selectExpense} />
+        <DaySection
+          date={activeDate}
+          expenses={dailyExpenses}
+          totalText={activeTotalText}
+          onTapExpense={selectExpense}
+        />
       </div>
     </div>
   );
@@ -216,17 +232,23 @@ export default function DailyCalendar({ expenses }: { expenses: Expense[] }) {
 function DaySection({
   date,
   expenses,
+  totalText,
   onTapExpense,
 }: {
   date: string;
   expenses: Expense[];
+  totalText: string;
   onTapExpense: (e: Expense) => void;
 }) {
   return (
     <div>
-      <div style={dateLabelRow}>
-        <span style={dateLabelText}>{date}</span>
-        <span style={dateLabelDot} />
+      <div style={dateHeaderRow}>
+        <div style={dateLeft}>
+          <span style={dateLabelText}>{date}</span>
+          <span style={dateLabelDot} />
+        </div>
+
+        <div style={dateRightAmount}>合計：{totalText}</div>
       </div>
 
       {expenses.length === 0 ? (
@@ -239,7 +261,7 @@ function DaySection({
             <button
               type="button"
               key={e.id}
-              onClick={() => onTapExpense(e)} // ✅ タップで詳細モーダル（selectExpense）
+              onClick={() => onTapExpense(e)}
               style={{
                 ...rowBtn,
                 borderBottom:
@@ -434,11 +456,30 @@ const activeGoldBar: React.CSSProperties = {
   opacity: 0.95,
 };
 
-const dateLabelRow: React.CSSProperties = {
+const dateHeaderRow: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 10,
+  marginBottom: 8,
+  width: "100%",
+};
+
+const dateLeft: React.CSSProperties = {
   display: "inline-flex",
   alignItems: "center",
   gap: 8,
-  marginBottom: 8,
+  minWidth: 0,
+};
+
+const dateRightAmount: React.CSSProperties = {
+  fontWeight: 900,
+  letterSpacing: 0.2,
+  color: theme.text,
+  paddingRight: 10,
+  marginLeft: "auto",
+  textAlign: "right",
+  fontVariantNumeric: "tabular-nums",
 };
 
 const dateLabelText: React.CSSProperties = {

@@ -115,7 +115,8 @@ export default function TabBar({ sheetMode }: Props) {
   // ===== pathname からのデフォルト判定 =====
   const derivedMode: SheetMode = useMemo(() => {
     if (pathname === "/income" || pathname.startsWith("/income/")) return "income";
-    if (pathname === "/subscription" || pathname.startsWith("/subscription/")) return "fixedExpense";
+    if (pathname === "/subscription" || pathname.startsWith("/subscription/"))
+      return "fixedExpense";
     return "expense";
   }, [pathname]);
 
@@ -128,8 +129,7 @@ export default function TabBar({ sheetMode }: Props) {
 
   const actions = useExpenseStore() as unknown as ExpenseStoreActions;
 
-  const addFixedExpense =
-    actions.addFixedExpense ?? actions.addSubscription; // 後方互換
+  const addFixedExpense = actions.addFixedExpense ?? actions.addSubscription; // 後方互換
   const addLivingExpense = actions.addLivingExpense;
 
   /* ===============================
@@ -145,7 +145,7 @@ export default function TabBar({ sheetMode }: Props) {
   /* ===============================
      固定費（fixedExpense）
   ================================ */
-  const [fxDay, setFxDay] = useState(String(new Date().getDate())); 
+  const [fxDay, setFxDay] = useState(String(new Date().getDate()));
   const [fxDetail, setFxDetail] = useState("");
   const [fxAmount, setFxAmount] = useState("");
   const [fxCategory, setFxCategory] = useState("サブスク");
@@ -249,7 +249,8 @@ export default function TabBar({ sheetMode }: Props) {
 
       if (mode === "fixedExpense") {
         if (!fxDetail || !fxAmount || !fxDay) return;
-        if (!addFixedExpense) throw new Error("addFixedExpense（または addSubscription）が未実装です。");
+        if (!addFixedExpense)
+          throw new Error("addFixedExpense（または addSubscription）が未実装です。");
 
         await addFixedExpense({
           day: Number(fxDay),
@@ -306,6 +307,44 @@ export default function TabBar({ sheetMode }: Props) {
           ? "収入を追加"
           : "支出を追加";
 
+  // ✅ 非アクティブでも見える色（透明すぎない）
+  const inactiveColor = theme.text ?? "rgba(255,255,255,0.86)";
+  const inactiveSub = theme.subtext;
+
+  function tabMergedStyle(active: boolean): React.CSSProperties {
+    return {
+      ...tabStyle(active),
+      position: "relative",
+      // tabStyle 側で color が薄くされていても、ここで上書きして見えるようにする
+      color: active ? theme.primary : inactiveColor,
+      fontWeight: active ? 800 : 650,
+      transform: active ? "translateY(-2px)" : "translateY(0px)",
+      paddingBottom: 10, // ✅ 下線とラベルが被らないように余白確保
+      transition:
+        "transform .18s ease, color .18s ease, font-weight .18s ease, padding .18s ease",
+    };
+  }
+
+  function iconStyle(active: boolean): React.CSSProperties {
+    return {
+      filter: active ? `drop-shadow(0 2px 10px ${theme.primary}55)` : "none",
+      opacity: active ? 1 : 0.92,
+      transition: "filter .18s ease, opacity .18s ease",
+    };
+  }
+
+  function labelStyle(active: boolean): React.CSSProperties {
+    return {
+      fontSize: 12,
+      lineHeight: "12px",
+      marginTop: 6,
+      color: active ? theme.primary : inactiveSub,
+      letterSpacing: active ? 0.2 : 0,
+      transition: "color .18s ease, letter-spacing .18s ease",
+      paddingBottom: 2,
+    };
+  }
+
   return (
     <>
       {/* ================= FAB ================= */}
@@ -319,10 +358,20 @@ export default function TabBar({ sheetMode }: Props) {
           const active = pathname === t.href || pathname.startsWith(t.href + "/");
           const Icon = t.Icon;
           return (
-            <Link key={t.href} href={t.href} style={tabStyle(active)}>
-              {active && <ActivePill />}
-              <Icon size={20} strokeWidth={active ? 2.6 : 2} />
-              <span>{t.label}</span>
+            <Link key={t.href} href={t.href} style={tabMergedStyle(active)}>
+              {active && (
+                <>
+                  <ActivePill />
+                  <ActiveUnderline />
+                </>
+              )}
+
+              <Icon
+                size={20}
+                strokeWidth={active ? 2.8 : 2.2}
+                style={iconStyle(active)}
+              />
+              <span style={labelStyle(active)}>{t.label}</span>
             </Link>
           );
         })}
@@ -333,10 +382,20 @@ export default function TabBar({ sheetMode }: Props) {
           const active = pathname === t.href || pathname.startsWith(t.href + "/");
           const Icon = t.Icon;
           return (
-            <Link key={t.href} href={t.href} style={tabStyle(active)}>
-              {active && <ActivePill />}
-              <Icon size={20} strokeWidth={active ? 2.6 : 2} />
-              <span>{t.label}</span>
+            <Link key={t.href} href={t.href} style={tabMergedStyle(active)}>
+              {active && (
+                <>
+                  <ActivePill />
+                  <ActiveUnderline />
+                </>
+              )}
+
+              <Icon
+                size={20}
+                strokeWidth={active ? 2.8 : 2.2}
+                style={iconStyle(active)}
+              />
+              <span style={labelStyle(active)}>{t.label}</span>
             </Link>
           );
         })}
@@ -435,17 +494,42 @@ export default function TabBar({ sheetMode }: Props) {
   );
 }
 
+/* ===============================
+   Active indicators
+================================ */
 function ActivePill() {
   return (
     <div
       style={{
         position: "absolute",
         top: 4,
-        width: 42,
-        height: 24,
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: 48,
+        height: 26,
         borderRadius: 999,
-        background: `${theme.primary}18`,
+        background: `${theme.primary}2A`, // 濃度UP
+        boxShadow: `0 10px 28px ${theme.primary}2A, 0 0 0 1px ${theme.primary}33 inset`,
         zIndex: -1,
+      }}
+    />
+  );
+}
+
+function ActiveUnderline() {
+  return (
+    <div
+      style={{
+        position: "absolute",
+        left: "50%",
+        bottom: 4, 
+        transform: "translateX(-50%)",
+        width: 22,
+        height: 3,
+        borderRadius: 999,
+        background: theme.primary,
+        boxShadow: `0 6px 16px ${theme.primary}55`,
+        pointerEvents: "none",
       }}
     />
   );

@@ -87,7 +87,7 @@ export default function FilterBar({
         >
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8 }}>
             <span style={moreIcon(openMore)} />
-            <span style={{ fontWeight: 900 }}>詳細フィルター</span>
+            <span style={{ fontWeight: 900, color: theme.primary }}>詳細フィルター</span>
           </span>
 
           <span style={moreMeta}>

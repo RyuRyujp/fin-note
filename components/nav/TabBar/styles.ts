@@ -2,7 +2,7 @@ import { theme } from "@/lib/theme";
 
 export const fabStyle: React.CSSProperties = {
   position: "fixed",
-  bottom: "calc(var(--tabbar-h) - 50px + env(safe-area-inset-bottom))",
+  bottom: "calc(var(--tabbar-h) - 40px + env(safe-area-inset-bottom))",
   left: "50%",
   transform: "translateX(-50%)",
   width: 54,
@@ -25,7 +25,7 @@ export const navStyle: React.CSSProperties = {
   right: 0,
   bottom: 0,
   paddingBottom: "env(safe-area-inset-bottom)",
-  paddingTop: "10px",
+  paddingTop: "0",
   background: "rgba(255,255,255,0.82)",
   backdropFilter: "blur(20px)",
   borderTop: `1px solid ${theme.border}`,

@@ -148,7 +148,7 @@ export default function SubscriptionsPage() {
         </div>
 
         {/* ===== リスト ===== */}
-        <div style={{ marginTop: 16, display: "grid", gap: 12 }}>
+        <div style={{ marginTop: 16, marginBottom: 50, display: "grid", gap: 12 }}>
           {isFixed
             ? fixedExpenses.map((e) => (
               <SubRowForFixedExpense

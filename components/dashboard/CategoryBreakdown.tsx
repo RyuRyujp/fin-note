@@ -61,7 +61,7 @@ export default function CategoryBreakdown({ expenses }: { expenses: Expense[] })
   };
 
   return (
-    <div style={{ marginTop: 14 }}>
+    <div style={{ marginTop: 14, marginBottom: 20 }}>
       {/* 見出し */}
       <div style={titleRow}>
         <span style={titleDot} />
