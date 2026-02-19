@@ -1,5 +1,7 @@
 import React, { useMemo, useState } from "react";
 import { theme } from "@/lib/theme";
+import { useCategoryStore } from "@/lib/store/categoryStore";
+import { usePaymentStore } from "@/lib/store/paymentStore";
 
 type Props = {
   year: string;
@@ -27,6 +29,8 @@ export default function FilterBar({
   setPayment,
 }: Props) {
   const [openMore, setOpenMore] = useState(false);
+  const categories = useCategoryStore((s) => s.categories);
+  const payments = usePaymentStore((s) => s.payments);
 
   const moreLabel = useMemo(() => {
     const parts: string[] = [];
@@ -66,13 +70,11 @@ export default function FilterBar({
             style={select}
           >
             <option value="">全て</option>
-            <option>食費</option>
-            <option>生活費</option>
-            <option>交通費</option>
-            <option>日用品</option>
-            <option>娯楽・趣味</option>
-            <option>雑貨</option>
-            <option>その他</option>
+            {categories.map((c) => (
+              <option key={c.categoryId} value={c.name}>
+                {c.name}
+              </option>
+            ))}
           </select>
         </SelectShell>
       </Field>
@@ -143,15 +145,11 @@ export default function FilterBar({
             <SelectShell>
               <select value={payment} onChange={(e) => setPayment(e.target.value)} style={select}>
                 <option value="">全て</option>
-
-                <option value="クレジット：三菱UFJ">クレジット：三菱UFJ</option>
-                <option value="クレジット：楽天">クレジット：楽天</option>
-                <option value="クレジット：EPOS">クレジット：EPOS</option>
-                <option value="クレジット：三井住友">クレジット：三井住友</option>
-
-                <option value="PayPay">PayPay</option>
-                <option value="現金">現金</option>
-                <option value="その他">その他</option>
+                {payments.map((p) => (
+                  <option key={p.paymentId} value={p.name}>
+                    {p.name}
+                  </option>
+                ))}
               </select>
             </SelectShell>
           </Field>
