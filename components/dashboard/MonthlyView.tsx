@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import type { Expense } from "@/lib/store/expenseStore";
 import { theme } from "@/lib/theme";
 import {
@@ -17,6 +18,11 @@ import {
 ================================ */
 export default function MonthlyView({ expenses }: { expenses: Expense[] }) {
   const [tab, setTab] = useState<"list" | "chart">("list");
+  const router = useRouter();
+
+  const goMonth = (year: string, month: string) => {
+    router.push(`/list?category?year=${encodeURIComponent(year)}&month=${encodeURIComponent(month)}`);
+  };
 
   /* ===== 月別集計 ===== */
   const monthly = useMemo(() => {
@@ -47,17 +53,18 @@ export default function MonthlyView({ expenses }: { expenses: Expense[] }) {
 
   return (
     <div style={{ marginTop: 12 }}>
-      {/* ===== サブタブ（下線インジケータ：Dailyと差別化） ===== */}
       <div style={subNavWrap}>
         <SubTabsIndicator active={tab} />
-
         <SubTab active={tab === "list"} onClick={() => setTab("list")} label="月一覧" />
         <SubTab active={tab === "chart"} onClick={() => setTab("chart")} label="グラフ" />
       </div>
 
-      {/* ===== 中身 ===== */}
       <div style={{ marginTop: 12 }}>
-        {tab === "list" ? <MonthlyList data={monthly} /> : <MonthlyChart data={monthly} />}
+        {tab === "list" ? (
+          <MonthlyList data={monthly} onPickMonth={goMonth} />
+        ) : (
+          <MonthlyChart data={monthly} />
+        )}
       </div>
     </div>
   );
@@ -68,31 +75,51 @@ export default function MonthlyView({ expenses }: { expenses: Expense[] }) {
 ================================ */
 function MonthlyList({
   data,
+  onPickMonth,
 }: {
   data: { month: string; total: number; avg: number }[];
+  onPickMonth: (year: string, month: string) => void;
 }) {
+  const splitYearMonth = (ym: string): { year: string; month: string } => {
+    // ym: "YYYY/MM" 想定
+    const y = ym.slice(0, 4);
+    const m = String(Number(ym.slice(5, 7)));
+    return { year: y, month: m };
+  };
+
   return (
     <div style={{ display: "grid", gap: 10 }}>
-      {data.map((m) => (
-        <div key={m.month} style={monthCard}>
-          <div style={goldLineThin} />
+      {data.map((m) => {
+        const { year, month } = splitYearMonth(m.month);
 
-          {/* 左 */}
-          <div style={{ display: "grid", gap: 4 }}>
-            <div style={monthTitle}>
-              <span style={monthTitleDot} />
-              <span>{m.month}月</span>
+        return (
+          <button
+            key={m.month}
+            type="button"
+            style={monthCardButton}
+            onClick={() => onPickMonth(year, month)} // ✅ ここが修正
+            aria-label={`${m.month} のカテゴリ別明細へ`}
+          >
+            <div style={monthCard}>
+              <div style={goldLineThin} />
+
+              <div style={{ display: "grid", gap: 4 }}>
+                <div style={monthTitle}>
+                  <span style={monthTitleDot} />
+                  <span>{m.month}月</span>
+                </div>
+                <div style={monthSub}>1日平均 ¥{m.avg.toLocaleString()}</div>
+              </div>
+
+              <div style={monthTotal}>¥{m.total.toLocaleString()}</div>
             </div>
-            <div style={monthSub}>1日平均 ¥{m.avg.toLocaleString()}</div>
-          </div>
-
-          {/* 右 */}
-          <div style={monthTotal}>¥{m.total.toLocaleString()}</div>
-        </div>
-      ))}
+          </button>
+        );
+      })}
     </div>
   );
 }
+
 
 /* ===============================
    棒グラフ
@@ -252,17 +279,26 @@ const goldPin: React.CSSProperties = {
   boxShadow: "0 0 0 4px rgba(214,181,138,0.18)",
 };
 
+const monthCardButton: React.CSSProperties = {
+  border: "none",
+  background: "transparent",
+  padding: 0,
+  textAlign: "left",
+  cursor: "pointer",
+};
+
 const monthCard: React.CSSProperties = {
   position: "relative",
   overflow: "hidden",
   background: theme.surface,
   borderRadius: 18,
   padding: "14px 16px",
-  border: `1px solid rgba(29,78,137,0.12)`, // ✅ 青の薄枠
+  border: `1px solid rgba(29,78,137,0.12)`,
   boxShadow: "0 14px 28px rgba(2,6,23,0.06)",
   display: "flex",
   justifyContent: "space-between",
   alignItems: "center",
+  transition: "transform .12s ease, box-shadow .18s ease",
 };
 
 const goldLineThin: React.CSSProperties = {
