@@ -172,7 +172,7 @@ export default function ExportPage() {
                 </div>
                 <div style={{ minWidth: 0 }}>
                   <div style={heroTitle}>CSVエクスポート</div>
-                  <div style={heroSub}>ストアのデータから、選択した項目だけCSVを生成します。</div>
+                  <div style={heroSub}>選択した項目のCSVを生成します</div>
                 </div>
               </div>
 
@@ -851,7 +851,7 @@ const switchTrack: React.CSSProperties = {
 
 const switchTrackOn: React.CSSProperties = {
   border: "1px solid rgba(29,78,137,0.22)",
-  background: "rgba(29,78,137,0.22)",
+  background: theme.primary,
 };
 
 const switchKnob: React.CSSProperties = {
