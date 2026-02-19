@@ -139,13 +139,13 @@ export default function TabBar({ sheetMode }: Props) {
   const [exDetail, setExDetail] = useState("");
   const [exAmount, setExAmount] = useState("");
   const [exCategory, setExCategory] = useState("食費");
-  const [exPayment, setExPayment] = useState("現金");
+  const [exPayment, setExPayment] = useState("クレジット：三菱UFJ");
   const [exMemo, setExMemo] = useState("");
 
   /* ===============================
      固定費（fixedExpense）
   ================================ */
-  const [fxDay, setFxDay] = useState(String(new Date().getDate())); // 1〜31
+  const [fxDay, setFxDay] = useState(String(new Date().getDate())); 
   const [fxDetail, setFxDetail] = useState("");
   const [fxAmount, setFxAmount] = useState("");
   const [fxCategory, setFxCategory] = useState("サブスク");

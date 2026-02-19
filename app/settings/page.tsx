@@ -26,7 +26,6 @@ export default function SettingsPage() {
   const router = useRouter();
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // ✅ 現在のテーマ名（表示用）
   const [themeName] = useState<ThemeName>(() => getStoredTheme());
 
   const currentPreset = useMemo(() => THEME_PRESETS[themeName], [themeName]);
@@ -49,9 +48,20 @@ export default function SettingsPage() {
                   bg={currentPreset.background}
                 />
               }
-              onClick={() => router.push("/settings/theme")} // ✅ 別ページへ
+              onClick={() => router.push("/settings/theme")} 
             />
-            <SettingRow title="表示密度" sub="コンパクト / 標準（後で対応）" onClick={() => {}} />
+            <SettingRow
+              title="カテゴリ"
+              sub={`カテゴリオプションを管理できます`}
+              right={<Badge text="カテゴリ詳細" />}
+              onClick={() => router.push("/settings/category")} 
+            />
+            <SettingRow
+              title="支払方法"
+              sub={`支払い方法オプションを管理できます`}
+              right={<Badge text="支払方法詳細" />}
+              onClick={() => router.push("/settings/payment")} 
+            />
           </Section>
 
           <Section title="通知">

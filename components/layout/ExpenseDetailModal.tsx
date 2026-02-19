@@ -3,6 +3,8 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useExpenseStore, Expense } from "@/lib/store/expenseStore";
+import { useCategoryStore } from "@/lib/store/categoryStore";
+import { usePaymentStore } from "@/lib/store/paymentStore";
 import { theme } from "@/lib/theme";
 
 type InputChange =
@@ -11,29 +13,22 @@ type InputChange =
 
 type Option = { value: string; label: string };
 
-const CATEGORY_OPTIONS: Option[] = [
-  { value: "食費", label: "食費" },
-  { value: "交通費", label: "交通費" },
-  { value: "日用品", label: "日用品" },
-  { value: "雑貨", label: "雑貨" },
-  { value: "サブスク", label: "サブスク" },
-  { value: "娯楽・趣味", label: "娯楽・趣味" },
-  { value: "その他", label: "その他" },
-];
-
-const PAYMENT_OPTIONS: Option[] = [
-  { value: "クレジット：三菱UFJ", label: "クレジット：三菱UFJ" },
-  { value: "クレジット：楽天", label: "クレジット：楽天" },
-  { value: "クレジット：EPOS", label: "クレジット：EPOS" },
-  { value: "クレジット：三井住友", label: "クレジット：三井住友" },
-  { value: "PayPay", label: "PayPay" },
-  { value: "現金", label: "現金" },
-  { value: "その他", label: "その他" },
-];
-
 export default function ExpenseDetailModal() {
   const { selectedExpense, selectExpense, deleteExpense, updateExpense } =
     useExpenseStore();
+
+  const categories = useCategoryStore((s) => s.categories);
+  const payments = usePaymentStore((s) => s.payments);
+
+  const categoryOptions: Option[] = categories.map((c) => ({
+    value: c.name,
+    label: c.name,
+  }));
+
+  const paymentOptions: Option[] = payments.map((p) => ({
+    value: p.name,
+    label: p.name,
+  }));
 
   const [form, setForm] = useState<Expense | null>(null);
 
@@ -129,14 +124,13 @@ export default function ExpenseDetailModal() {
             label="カテゴリ"
             value={form.category}
             onChange={change("category")}
-            options={CATEGORY_OPTIONS}
+            options={categoryOptions}
           />
-
           <Select
             label="支払方法"
             value={form.payment}
             onChange={change("payment")}
-            options={PAYMENT_OPTIONS}
+            options={paymentOptions}
           />
         </div>
 

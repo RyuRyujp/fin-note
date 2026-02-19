@@ -1,7 +1,10 @@
 "use client";
 
 import type React from "react";
+import { useEffect } from "react";
 import { theme } from "@/lib/theme";
+import { useCategoryStore } from "@/lib/store/categoryStore";
+import { usePaymentStore } from "@/lib/store/paymentStore";
 
 function monthDoneLabel() {
     const m = new Date().getMonth() + 1; // 1-12
@@ -22,6 +25,7 @@ export type SubscriptionFormProps = {
     /** ✅ 追加：金額フィールドを表示するか（デフォルト true） */
     showAmount?: boolean;
 
+    /** ✅ category/payment は “name” を入れる運用のまま */
     category: string;
     setCategory: (v: string) => void;
 
@@ -43,7 +47,7 @@ export default function SubscriptionForm({
     setDetail,
     amount,
     setAmount,
-    showAmount = true, 
+    showAmount = true,
     category,
     setCategory,
     payment,
@@ -56,6 +60,17 @@ export default function SubscriptionForm({
 }: SubscriptionFormProps) {
     const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
     const doneLabel = monthDoneLabel();
+
+    // ★ MasterStore から取得（直打ちデータ）
+    const categories = useCategoryStore((s) => s.categories);
+    const payments = usePaymentStore((s) => s.payments);
+
+    // ★ 初期値が空なら安全に補完（任意）
+    useEffect(() => {
+        if (!category && categories.length) setCategory(categories[0].name);
+        if (!payment && payments.length) setPayment(payments[0].name);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [categories.length, payments.length]);
 
     return (
         <div style={{ display: "grid", gap: 18 }}>
@@ -84,24 +99,24 @@ export default function SubscriptionForm({
                     />
                 </Field>
             )}
-
+            
             <Field label="カテゴリ">
                 <select value={category} onChange={(e) => setCategory(e.target.value)} style={input}>
-                    <option>サブスク</option>
-                    <option>生活費</option>
-                    <option>その他</option>
+                    {categories.map((c) => (
+                        <option key={c.categoryId} value={c.name}>
+                            {c.name}
+                        </option>
+                    ))}
                 </select>
             </Field>
 
             <Field label="支払方法">
                 <select value={payment} onChange={(e) => setPayment(e.target.value)} style={input}>
-                    <option>クレジット：三菱UFJ</option>
-                    <option>クレジット：楽天</option>
-                    <option>クレジット：EPOS</option>
-                    <option>クレジット：三井住友</option>
-                    <option>PayPay</option>
-                    <option>現金</option>
-                    <option>その他</option>
+                    {payments.map((p) => (
+                        <option key={p.paymentId} value={p.name}>
+                            {p.name}
+                        </option>
+                    ))}
                 </select>
             </Field>
 

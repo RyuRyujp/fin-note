@@ -1,19 +1,11 @@
 import { input } from "./styles";
 import { Field, FormButtons, DoneToggle } from "./ui";
+import { useCategoryStore } from "@/lib/store/categoryStore";
+import { usePaymentStore } from "@/lib/store/paymentStore";
 
 /* ===============================
    共通
 ================================ */
-const PAYMENT_OPTIONS = [
-  "クレジット：三菱UFJ",
-  "クレジット：楽天",
-  "クレジット：EPOS",
-  "クレジット：三井住友",
-  "PayPay",
-  "現金",
-  "その他",
-] as const;
-
 function thisMonthDoneLabel() {
   const m = new Date().getMonth() + 1; // 1-12
   return `${m}月済`;
@@ -57,6 +49,8 @@ export function ExpenseForm({
   saving,
   onClose,
 }: ExpenseFormProps) {
+  const categories = useCategoryStore((s) => s.categories);
+  const payments = usePaymentStore((s) => s.payments);
   return (
     <div style={{ display: "grid", gap: 18 }}>
       <Field label="日付">
@@ -73,21 +67,19 @@ export function ExpenseForm({
 
       <Field label="カテゴリ">
         <select value={category} onChange={(e) => setCategory(e.target.value)} style={input}>
-          <option>食費</option>
-          <option>生活費</option>
-          <option>交通費</option>
-          <option>日用品</option>
-          <option>雑貨</option>
-          <option>娯楽・趣味</option>
-          <option>未分類</option>
+          {categories.map((c) => (
+            <option key={c.categoryId} value={c.name}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </Field>
 
       <Field label="支払方法">
         <select value={payment} onChange={(e) => setPayment(e.target.value)} style={input}>
-          {PAYMENT_OPTIONS.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {payments.map((p) => (
+            <option key={p.paymentId} value={p.name}>
+              {p.name}
             </option>
           ))}
         </select>
@@ -142,6 +134,9 @@ export function FixedExpenseForm({
   saving,
   onClose,
 }: FixedExpenseFormProps) {
+  const categories = useCategoryStore((s) => s.categories);
+  const payments = usePaymentStore((s) => s.payments);
+
   const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const doneLabel = thisMonthDoneLabel();
 
@@ -167,18 +162,19 @@ export function FixedExpenseForm({
 
       <Field label="カテゴリ">
         <select value={category} onChange={(e) => setCategory(e.target.value)} style={input}>
-          <option>サブスク</option>
-          <option>固定費</option>
-          <option>生活費</option>
-          <option>その他</option>
+          {categories.map((c) => (
+            <option key={c.categoryId} value={c.name}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </Field>
 
       <Field label="支払方法">
         <select value={payment} onChange={(e) => setPayment(e.target.value)} style={input}>
-          {PAYMENT_OPTIONS.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {payments.map((p) => (
+            <option key={p.paymentId} value={p.name}>
+              {p.name}
             </option>
           ))}
         </select>
@@ -233,6 +229,9 @@ export function LivingExpenseForm({
   saving,
   onClose,
 }: LivingExpenseFormProps) {
+  const categories = useCategoryStore((s) => s.categories);
+  const payments = usePaymentStore((s) => s.payments);
+
   const dayOptions = Array.from({ length: 31 }, (_, i) => String(i + 1));
   const doneLabel = thisMonthDoneLabel();
 
@@ -254,19 +253,19 @@ export function LivingExpenseForm({
 
       <Field label="カテゴリ">
         <select value={category} onChange={(e) => setCategory(e.target.value)} style={input}>
-          <option>生活費</option>
-          <option>日用品</option>
-          <option>交通費</option>
-          <option>サブスク</option>
-          <option>その他</option>
+          {categories.map((c) => (
+            <option key={c.categoryId} value={c.name}>
+              {c.name}
+            </option>
+          ))}
         </select>
       </Field>
 
       <Field label="支払方法">
         <select value={payment} onChange={(e) => setPayment(e.target.value)} style={input}>
-          {PAYMENT_OPTIONS.map((p) => (
-            <option key={p} value={p}>
-              {p}
+          {payments.map((p) => (
+            <option key={p.paymentId} value={p.name}>
+              {p.name}
             </option>
           ))}
         </select>

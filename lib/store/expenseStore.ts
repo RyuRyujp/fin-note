@@ -353,7 +353,6 @@ export const useExpenseStore = create<State>((set, get) => ({
         }
     },
 
-
     updateFixedExpense: async (fixed) => {
         // done は string 型（"2月済" など）なのでそのまま送る
         await fetch("/api/update-fixed-expense", {
@@ -414,8 +413,6 @@ export const useExpenseStore = create<State>((set, get) => ({
             return { livingExpenses: nextLiving };
         });
     },
-
-
 
     loadExpenses: async (opts) => {
         const force = opts?.force ?? false;

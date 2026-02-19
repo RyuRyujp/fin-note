@@ -127,7 +127,7 @@ export default function SideMenu({ open, onClose }: Props) {
             />
           </MenuSection>
 
-          <MenuSection title="管理">
+          <MenuSection title="設定">
             <MenuItem
               icon={Settings}
               href="/settings"
@@ -135,15 +135,6 @@ export default function SideMenu({ open, onClose }: Props) {
               sub="表示 / 通知 / 端末"
               active={pathname === "/settings"}
               onClick={onClose}
-            />
-            <MenuItem
-              icon={Tag}
-              href="/category"
-              title="カテゴリ"
-              sub="色 / 並び替え"
-              active={pathname === "/category"}
-              onClick={onClose}
-              last
             />
           </MenuSection>
         </div>
